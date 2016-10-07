@@ -1,0 +1,15 @@
+<?xml version ="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <category label="30000">
+    <setting id="email" type="text" label="30010" />
+    <setting id="pass" type="text" label="30011" option="hidden" />
+    <setting type="sep" />
+    <setting id="warning" type="bool" label="30013" default="false"/>
+    <setting type="sep" />
+    <setting id="search1" type="text" label="30080" />
+    <setting id="search2" type="text" label="30081" />
+    <setting id="search3" type="text" label="30082" />
+    <setting type="sep" />
+    <setting id="debug" type="bool" label="30012" default="false"/>
+  </category>
+</settings>
