@@ -1,0 +1,9 @@
+[B]Version 1.0.4 - 2016-10-07[/B]
+website changed
+[B]Version 1.0.3 - 2016-07-14[/B]
+website changed, add support for records pages
+[B]Version 1.0.2 - 2016-06-24[/B]
+website changed, now use BeautifulSoup
+[B]Version 1.0.2 - 2016-05-22[/B]
+initial version
+
