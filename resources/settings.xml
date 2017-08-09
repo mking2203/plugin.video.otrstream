@@ -12,4 +12,7 @@
     <setting type="sep" />
     <setting id="debug" type="bool" label="30012" default="false"/>
   </category>
+  <category label="EPG">
+      <setting id="loadChannels" type="bool" label="Relaod channels" default="false"/>
+  </category>
 </settings>

@@ -1,3 +1,13 @@
+[B]Version 1.0.9- 2017-08-08[/B]
+Changes on website
+[B]Version 1.0.8 - 2017-04-02[/B]
+Fixed search if bank characters uses, also use UTF for Beautifulsoup
+[B]Version 1.0.7 - 2017-04-01[/B]
+fixed a bug while searching
+[B]Version 1.0.6 - 2016-10-14[/B]
+Change back to Beautifulsoup 3 cause compatible reason, added my top list, fixed year 2017
+[B]Version 1.0.5 - 2016-10-14[/B]
+Change to Beautifulsoup 4, Python 2.7 to fix illegal characters
 [B]Version 1.0.4 - 2016-10-07[/B]
 website changed
 [B]Version 1.0.3 - 2016-07-14[/B]

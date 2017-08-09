@@ -1,5 +1,6 @@
-import mechanize
+import mechanize, re
 from BeautifulSoup import BeautifulSoup
+from datetime import date
 
 class ItemClass(object):
     pass
@@ -23,12 +24,32 @@ def getHTML(user, pw, link):
     result = response.read()    
     
     return result 
+    
+def getPostHTML(user, pw, link):
+
+    # init browser
+    br = mechanize.Browser()
+    br.set_handle_robots(False)
+
+    br.open("http://www.onlinetvrecorder.com/v2/?go=home")
+
+    # login
+    br.select_form('fhomelogin')
+
+    br['email'] = user
+    br['password'] = pw
+    br.submit().read()
+    
+    response = br.open(link)
+    result = response.read()    
+    
+    return result 
 
 def scanList(data):
     
     itemlist = []
     
-    soup = BeautifulSoup(data)
+    soup = BeautifulSoup(data.decode('utf-8', 'ignore'))
     content = soup.findAll ('tr', id=lambda x: x and x.startswith('serchrow'))
 
     for c in content:
@@ -52,7 +73,8 @@ def scanList(data):
     
         pict = c.find('td' , id=lambda x: x and x.startswith('listimagetd'))
         pic = pict.find('img')
-        x.thumb = pic['src']
+        if not (pic is None):
+            x.thumb = pic['src']
     
         genre = c.find('p' , style=lambda x: x and x.startswith('text-transform:capitalize'))
         x.genre = genre.text
@@ -93,14 +115,20 @@ def scanList(data):
 
 def getSearchString(keyword, page):
     
+    keyword = keyword.replace(' ','+')
+    
     iPage = int(page)
     x = (iPage-1) * 20
     
-    s = 'http://www.onlinetvrecorder.com/v2/?go=list&tab=search'
+    s = 'http://www.onlinetvrecorder.com/v2/?go=list'
+   #s += '&tab=search'
     s += '&station='
     s += '&date=all'
-    s += '&min_start_date=0'
-    s += '&year=2016'
+    #s += '&min_start_date=0'
+
+    'not a nice solution, during changeover of a year'
+    s += '&year=' + str(date.today().year)
+    
     s += '&fd=1'
     s += '&fm=1'
     s += '&td=31'
@@ -113,7 +141,7 @@ def getSearchString(keyword, page):
     s += '&title=' + keyword
     s += '&genre='
     s += '&order=beginn%20DESC' # neueste zuerst
-    s += '&format=mp4,mcut,avi,hq,hcut,' # stream format
+    s += '&format=mp4,mcut,avi,hq,hcut' # stream format
     s += '&times='
     s += '&intext=0'
     s += '&exact=0'
@@ -134,10 +162,11 @@ def getSearchString(keyword, page):
     s += '&fsk='
     s += '&productionyear='
     s += '&filestate='
-    s += '&_view=table'
+    #s += '&_view=table'
     s += '&start=' + str(x)
     
     return s
+    
 def getGroupString(group, page):
     
     iPage = int(page)
@@ -147,7 +176,10 @@ def getGroupString(group, page):
     s += '&station='
     s += '&date=all'
     s += '&min_start_date=0'
-    s += '&year=2016'
+  
+    'not a nice solution, during changeover of a year'
+    s += '&year=' + str(date.today().year)
+    
     s += '&fd=1'
     s += '&fm=1'
     s += '&td=31'
@@ -185,55 +217,6 @@ def getGroupString(group, page):
     s += '&start=' + str(x)
     
     return s
-
-def getRecordsString(page):
-    
-    iPage = int(page)
-    x = (iPage-1) * 20
-   
-    s = 'http://www.onlinetvrecorder.com/v2/?go=list&tab=search'
-    s += '&station='
-    s += '&date=sinceregister'
-    s += '&min_start_date=0'
-    s += '&year=2016'
-    s += '&fd=1'
-    s += '&fm=1'
-    s += '&td=31'
-    s += '&tm=12'
-    s += '&actor='
-    s += '&season='
-    s += '&episode='
-    s += '&director='
-    s += '&minutes='
-    s += '&title='
-    s += '&genre=0'
-    s += '&order=beginn%20DESC' # neueste zuerst
-    s += '&format=mp4,mcut,avi,hq,hcut,' # stream format
-    s += '&times=0'
-    s += '&intext=0'
-    s += '&exact=0'
-    s += '&cbde=0'
-    s += '&cbsing=0'
-    s += '&cben=0'
-    s += '&cbxy=0'
-    s += '&cbfav=0'
-    s += '&rating=0'
-    s += '&weekday='
-    s += '&searchmethod=match'
-    s += '&indatefrom=0'
-    s += '&indateto=0'
-    s += '&intimefrom=0'
-    s += '&intimeto=23'
-    s += '&source=my' # suche nur records
-    s += '&wdh='
-    s += '&fsk='
-    s += '&productionyear='
-    s += '&filestate='
-    s += '&_view=table'
-    s += '&start=' + str(x)
-    
-    return s
-
 
 def getSearchStationString(keyword, station, date, page):
     
@@ -279,7 +262,10 @@ def getSearchStationString(keyword, station, date, page):
     s += '&selected_filter_weekday='
     s += '&times='
     s += '&selected_filter_times='
-    s += '&year=2016'
+
+    'not a nice solution, during changeover of a year'
+    s += '&year=' + str(date.today().year)
+    
     s += '&productionyear='
     s += '&selected_filter_productionyear='
     s += '&format=mp4,mcut,avi,hq,hcut,' # stream format

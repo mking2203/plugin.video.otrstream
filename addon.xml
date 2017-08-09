@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.otrstream" version="1.0.4" name="otrstream" provider-name="M. King">
+<addon id="plugin.video.otrstream" version="1.0.9" name="otrstream" provider-name="M. King">
     <requires>
-        <import addon="xbmc.python" version="2.6.0"/>
+        <import addon="xbmc.python" version="2.14.0"/>
+        <import addon="xbmc.addon" version="13.0.0" />
         <import addon="script.module.buggalo" version="1.1.2"/>
         <import addon="script.module.mechanize" version="0.2.6"/>
         <import addon="script.module.beautifulsoup" version="3.0.8"/>
@@ -15,7 +16,7 @@
         <license>GPL 2.0</license>
         <platform>all</platform>
         <language>en</language>
-        <email>mking2203@yahoo.com</email>
+        <email>mark.koenig@kleiner-schelm.de</email>
         <website>https://github.com/mking2203/plugin.video.otrstream</website>
         <source>https://github.com/mking2203/plugin.video.otrstream</source>
     </extension>

@@ -1,13 +1,49 @@
-import os, sys, time
+# coding=utf-8
+#
+#    copyright (C) 2017 Mark Koenig
+#
+#    based on ZattooBoxExtended by Daniel Griner (griner.ch@gmail.com) License under GPL
+#    based on ZattooBox by Pascal Nançoz (nancpasc@gmail.com) Licence under BSD 2 clause
+
+#    This file is part of otrstream
+#
+#    otrstream is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    otrstream is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with otrstream.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+REMOTE_DBG = False
+if REMOTE_DBG:
+  try:
+    import pysrc.pydevd as pydevd
+    pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
+  except ImportError:
+    sys.stderr.write("Error: You must add org.python.pydev.debug.pysrc to your PYTHONPATH.")
+    sys.exit(1)
+
+
+import xbmc, xbmcgui, xbmcplugin, xbmcaddon 
+import sys, urlparse, os
+import time
+
 import urllib, urllib2
-import urlparse
+
 import re
 import buggalo
 import mechanize
 import HTMLParser
 from datetime import datetime
 
-import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 
 CommonRootView = 50
 FullWidthList = 51
@@ -17,21 +53,33 @@ PictureThumbView = 514
 MediaListView2 = 503
 MediaListView3 = 504
 
+_listMode_ = ''
+
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
 
 __addon = xbmcaddon.Addon()
+__addonId =__addon.getAddonInfo('id')
 __addonname = __addon.getAddonInfo('name')
+
 __icon = __addon.getAddonInfo('icon')
 
 __addonpath = __addon.getAddonInfo('path').decode("utf-8")
-__resource  = xbmc.translatePath(os.path.join(__addonpath, 'resources', 'lib' ).encode("utf-8") ).decode("utf-8")
-
 __debug = __addon.getSetting('debug') == "true" 
 
+__profilePath = xbmc.translatePath(__addon.getAddonInfo('profile'))
+if not os.path.exists(__profilePath): os.makedirs(profilePath)
+__cookiePath = os.path.join(__profilePath, "cookie.db")
+
+__resource  = xbmc.translatePath(os.path.join(__addonpath, 'resources', 'lib' ).encode("utf-8") ).decode("utf-8")
 sys.path.append(__resource)
 
-import highlights
+import website
+
+from resources.otrDB import otrDB
+from resources.epg.epg import EPG
+
+__otrDB = otrDB()
 
 def showCredit():
   
@@ -42,7 +90,7 @@ def showCredit():
     login = xbmcplugin.getSetting(_handle, 'email')
     password = xbmcplugin.getSetting(_handle, 'pass')
     
-    data = highlights.login(login, password)
+    data = website.login(login, password, __cookiePath)
     
     # to do checks
     if(data.state == 'premium'):
@@ -82,6 +130,7 @@ def mainSelector():
         addPictureItem(__addon.getLocalizedString(30031) + ' : ' + str3, _url + '?search=' + str3 + '&page=1', 'DefaultFolder.png')
                          
     addPictureItem(__addon.getLocalizedString(30033), _url + '?credit=now', 'DefaultFolder.png')  # benutzer info
+    addPictureItem('EPG', _url + '?epg=today', 'DefaultFolder.png')  #epg
     
     xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
     xbmcplugin.endOfDirectory(_handle)
@@ -123,6 +172,11 @@ def toplistSelector():
     addPictureItem(__addon.getLocalizedString(30052), _url + '?toplist=104&page=1', 'DefaultFolder.png') # 7 Tage
     addPictureItem(__addon.getLocalizedString(30053), _url + '?toplist=103&page=1', 'DefaultFolder.png') # 30 Tage
     addPictureItem(__addon.getLocalizedString(30054), _url + '?toplist=101&page=1', 'DefaultFolder.png') # des jahres     
+    
+    addPictureItem(__addon.getLocalizedString(30090), _url + '?toplist=1&page=1', 'DefaultFolder.png') # meine Liste 1
+    addPictureItem(__addon.getLocalizedString(30091), _url + '?toplist=2&page=1', 'DefaultFolder.png') # meine Liste 2
+    addPictureItem(__addon.getLocalizedString(30092), _url + '?toplist=3&page=1', 'DefaultFolder.png') # meine Liste 3
+    addPictureItem(__addon.getLocalizedString(30093), _url + '?toplist=4&page=1', 'DefaultFolder.png') # meine Liste 4     
      
     xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
     xbmcplugin.endOfDirectory(_handle)
@@ -141,12 +195,12 @@ def showSelector(page):
     iPage = int(page)
  
     if(iPage < 2):
-        hList = highlights.getData(login, password)
+        hList = website.getData(login, password, __cookiePath)
         
         addPictureItem(__addon.getLocalizedString(30020), _url + '?actual=2', 'DefaultFolder.png') 
         
     if(iPage > 1):
-        hList = highlights.getMoreData(login, password, iPage)  
+        hList = website.getMoreData(login, password, __cookiePath, iPage) 
         
         no = iPage - 1
         addPictureItem(__addon.getLocalizedString(30021), _url + '?actual=' + str(no), 'DefaultFolder.png') 
@@ -174,7 +228,7 @@ def showCategory(epg_id, iTitle):
     login = xbmcplugin.getSetting(_handle, 'email')
     password = xbmcplugin.getSetting(_handle, 'pass')
     
-    mList = highlights.getMovies(login,password, epg_id)
+    mList = website.getMovies(login, password, __cookiePath, epg_id)
     for aItem in mList:
         title = aItem.title
         url = aItem.url
@@ -182,7 +236,7 @@ def showCategory(epg_id, iTitle):
         thumb = aItem.thumb
         
         if(title == 'Preview'):
-            addPictureItem2(title, _url + '?preview=%s' % url + '&title=%s' % iTitle, thumb, aItem.desc)  
+            addPictureItem2s(title, _url + '?preview=%s' % url + '&title=%s' % iTitle, thumb, aItem.desc, aItem.stars)  
         else:
             para = url
             para = para.replace('"','')
@@ -194,7 +248,7 @@ def showCategory(epg_id, iTitle):
             
             url = _url + '?movie=%s' %  mode + '&eid=%s' %  eid + '&rid=%s' %  rid
             
-            addPictureItem2(aItem.title + " / " + price, url, thumb, aItem.desc) 
+            addPictureItem2s(aItem.title + " / " + price, url, thumb, aItem.desc, aItem.stars) 
         
     xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView2)
     xbmcplugin.endOfDirectory(_handle) 
@@ -218,13 +272,16 @@ def showMovie(eid, rid, mode):
             ok = xbmcgui.Dialog().yesno('otrstream', __addon.getLocalizedString(30014), __addon.getLocalizedString(30015) )
     
     if(ok or (not warn)):
-        link = highlights.getPlayLink(user, pw, eid, rid, mode)
+        link = website.getPlayLink(user, pw, __cookiePath, eid, rid, mode)
     else:
         link = None
     
     if link is not None:      
-        xbmc.log('- movie - ' + link)   
-        xbmc.Player().play(link)
+        if not (link.startswith('ERROR')):
+            xbmc.log('- movie - ' + link)   
+            xbmc.Player().play(link)
+        else:
+            xbmc.executebuiltin('Notification(Free-Stream,' + link + ', 3000)')
     else:
         xbmc.log('- movie - not found')   
             
@@ -264,7 +321,7 @@ def search():
             
             addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=2', 'DefaultFolder.png') 
                       
-            hList = highlights.search(login,password, keyword, '1')
+            hList = website.search(login, password, __cookiePath, keyword, '1')
             for aItem in hList:
                 id = aItem.id
                 title = aItem.title
@@ -318,7 +375,7 @@ def searchStation():
             
             #addPictureItem(__addon.getLocalizedString(30020), _url + '?station=' + station + '&page=2&keyword=' + keyword, 'DefaultFolder.png') 
                       
-            hList = highlights.searchStation(login,password, keyword, station, date, '1')
+            hList = website.searchStation(login,password, __cookiePath, keyword, station, date, '1')
             for aItem in hList:
                 id = aItem.id
                 title = aItem.title
@@ -356,7 +413,7 @@ def searchPage(keyword, page, station=None):
         x = iPage + 1
         addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=' + str(x), 'DefaultFolder.png') 
                      
-    hList = highlights.search(login,password, keyword, page)
+    hList = website.search(login,password, __cookiePath, keyword, page)
     for aItem in hList:
         id = aItem.id
         title = aItem.title
@@ -393,7 +450,7 @@ def searchGroup(group , page):
         x = iPage + 1
         addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + group + '&page=' + str(x), 'DefaultFolder.png') 
                  
-    hList = highlights.searchGroup(login, password, group, page)
+    hList = website.searchGroup(login, password, __cookiePath, group, page)
     
     for aItem in hList:
         id = aItem.id
@@ -431,7 +488,7 @@ def showRecords(page):
         x = iPage + 1
         addPictureItem(__addon.getLocalizedString(30020), _url + '?records=' + str(x), 'DefaultFolder.png') 
          
-    hList = highlights.getRecords(login, password, page)
+    hList = website.getRecords(login, password, __cookiePath, page)
     for aItem in hList:
         id = aItem.id
         title = aItem.title
@@ -468,7 +525,7 @@ def showToplist(no, page):
         x = iPage + 1
         addPictureItem(__addon.getLocalizedString(30020), _url + '?toplist=' + no + '&page=' + str(x), 'DefaultFolder.png') 
                  
-    hList = highlights.getList(login, password, no, page)
+    hList = website.getList(login, password, __cookiePath, no, page)
     for aItem in hList:
         id = aItem.id
         title = aItem.title
@@ -510,7 +567,7 @@ def addPictureItem2(title, url, thumb, desc):
     list_item.setInfo('video', { 'plot': desc })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
-def addPictureItem3(title, url, thumb, desc, genre):
+def addPictureItem2s(title, url, thumb, desc, stars):
     
     list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
     list_item.addContextMenuItems([(__addon.getLocalizedString(30022), 'Action(ParentDir)'),
@@ -521,28 +578,50 @@ def addPictureItem3(title, url, thumb, desc, genre):
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
                       'fanart': thumb}) 
-                
+           
+    list_item.setInfo('video', { 'plot': desc , 'rating': float(stars * 2) })
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
+
+def addPictureItem3(title, url, thumb, desc, genre):
+    
+    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+    list_item.addContextMenuItems([(__addon.getLocalizedString(30022), 'Action(ParentDir)'),
+                                   (__addon.getLocalizedString(30023), 'XBMC.Container.Update(plugin://plugin.video.otrstream/?main=go)'),
+                                   (__addon.getLocalizedString(30024), 'ActivateWindow(10000)')]) 
+
+    list_item.setArt({'thumb': thumb,
+                      'icon': thumb,
+                      'fanart': thumb}) 
+
     list_item.setInfo('video', { 'plot': desc, 'genre': genre })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
-    
+
 def addMovieItem(title, url, thumb):
-    
+
     list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
         
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
-                      'fanart': thumb}) 
-                
+                      'fanart': thumb})
+
     xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
-        
 
 #### main entry point ####
 
 if __name__ == '__main__':
 
     PARAMS = urlparse.parse_qs(sys.argv[2][1:])
-    
-try:    
+
+try: 
+
+    # check login
+    check = website.checkCookie(__cookiePath)
+    if(not check):
+        xbmcgui.Dialog().notification(__addonname, 'login to website', time=3000)
+        
+        user = xbmcplugin.getSetting(_handle, 'email')
+        pw = xbmcplugin.getSetting(_handle, 'pass')
+        website.login(user, pw, __cookiePath)
   
     if PARAMS.has_key('categories'):
         showCategory(PARAMS['categories'][0], PARAMS['title'][0])
@@ -579,6 +658,17 @@ try:
             showToplist( PARAMS['toplist'][0], PARAMS['page'][0])   
     elif PARAMS.has_key('main'):
         mainSelector()
+    elif PARAMS.has_key('epg'):
+            
+        epg = EPG('1', 'True')
+        epg.loadChannels(_listMode_ == 'favourites')
+        xbmc.log('- show window -')
+        epg.show() #doModal()
+        xbmc.log('- now wait -')
+	while xbmcgui.Window(10000).getProperty('otrstream_runningView')=="epg": xbmc.sleep(10)
+	xbmc.log('- close window -')
+	del epg
+
     else:
         mainSelector() 
         

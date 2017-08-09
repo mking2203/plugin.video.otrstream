@@ -1,6 +1,8 @@
 import mechanize, re, urllib, time
 from BeautifulSoup import BeautifulSoup
 import functions
+import xbmc
+import cookielib
 
 class ItemClass(object):
     pass
@@ -11,6 +13,10 @@ def login(user, pw):
     
     # init browser
     br = mechanize.Browser()
+    
+    cj = cookielib.LWPCookieJar()
+    br.set_cookiejar(cj)
+    
     br.set_handle_robots(False)
 
     br.open("http://www.onlinetvrecorder.com/v2/?go=home")
@@ -20,10 +26,63 @@ def login(user, pw):
 
     br['email'] = user
     br['password'] = pw
+    
     br.submit().read()
+    
+    response = br.open('   ')
+    result = response.read()  
+    
+    # now check state
+    x.state = 'not loged in'
+    x.id = ''
+      
+    # info on java scipt
+    match = re.search('my_user_id="(?P<id>.*?)";.*?my_ut="(?P<state>.*?)"', result)
+    if(match != None):
+        x.id = match.group('id')
+        x.state = match.group('state')
+           
+    x.decode = 'n.v.' 
+        
+    # info on html
+    match = re.search('<a.href=".?go=history&tab=decodings(.*?)<\/i>(?P<value>[^<]*)<', result)
+    if(match != None):
+        x.decode = match.group('value')
+            
+    x.value = 'n.a.'
+            
+    match = re.search('<div.id="cssmenuright">.*?<a.href=".go=points.*?>(?P<value>[^<]*)<', result, re.DOTALL)
+    if(match != None):
+        x.value = match.group('value')
+            
+    return x
+    
+def loginCookie(user, pw, path):
+    
+    x = ItemClass()
+    
+    # init browser
+    br = mechanize.Browser()
+    
+    cj = cookielib.LWPCookieJar()
+    br.set_cookiejar(cj)
+    
+    br.set_handle_robots(False)
 
-    response = br.open("    ")
-    result = response.read()
+    br.open("http://www.onlinetvrecorder.com/v2/?go=home")
+
+    # login
+    br.select_form('fhomelogin')
+
+    br['email'] = user
+    br['password'] = pw
+    
+    br.submit().read()
+    
+    response = br.open('   ')
+    result = response.read()  
+    
+    cj.save(path, ignore_discard=True, ignore_expires=True)
     
     # now check state
     x.state = 'not loged in'
@@ -97,6 +156,8 @@ def getData(user, pw):
             
             x.vid = ''
             
+            x.text = x.text.replace('|','\n')
+            
             itemlist.append(x)
 
     # search for actual movies
@@ -141,6 +202,8 @@ def getData(user, pw):
     
         desc = c.find('div' , {'class' : 'homethreec'} )
         x.text = desc.text
+        
+        x.text = x.text.replace('|','\n')
         
         itemlist.append(x)    
     
@@ -239,22 +302,23 @@ def getMovies(user, pw, epg_id):
     
     result = data.replace('\'','\"')
     
-    #text_file = open("c:\\temp\\005_2.htm", "w")
-    #text_file.write(data)
-    #text_file.close()
-    
     # search the title & text
-    
     title = '?'
     match = re.search('<div.style="color:#FFF;.*?font-size:20px;([^>]*)>(?P<txt>[^>]*)<', result, re.DOTALL)
     if(match is not None):
         title = match.group('txt').strip()
 
     desc = '...'
-    match = re.search('<div.style="height:215px;.overflow:auto([^>]*)>(?P<txt>[^>]*)<', result, re.DOTALL)
+    #match = re.search('<div.style="height:215px;.overflow:auto([^>]*)>(?P<txt>[^>]*)<', result, re.DOTALL)
+    match = re.search('currentepgtext[^>]*>(?P<txt>.*?)<.span>', result, re.DOTALL)
     if(match is not None):
-        desc = match.group('txt').strip()
+        desc = match.group('txt').strip().replace('<br>','\n')
     
+    #get stars
+    stars = 0   
+    regex = 'font-size:21px; color:#FFCA00;'
+    for m in re.finditer(regex, result, re.DOTALL):
+        stars += 1   
 
     # search picture   
     thumb = 'DefaultVideo.png' 
@@ -263,6 +327,10 @@ def getMovies(user, pw, epg_id):
     if(match != None):
         thumb = match.group('thumb')
     
+    match = re.search('<div.id="quickbigimage.*?background-image:url.(?P<thumb>[^)]*)', result)
+    if(match != None):
+        thumb = match.group('thumb')
+
     # search preview video
     
     match = re.search('<video.id="previewvideo[^>]*>.*?<source.src="(?P<url>[^"]*)"', result, re.DOTALL)
@@ -273,6 +341,7 @@ def getMovies(user, pw, epg_id):
         x.price = "0,00 Cent"
         x.thumb = thumb
         x.desc = desc
+        x.stars = stars
         
         itemlist.append(x)
     
@@ -292,6 +361,7 @@ def getMovies(user, pw, epg_id):
         x.price = m.group('price')
         x.thumb = thumb
         x.desc = desc
+        x.stars = stars
             
         itemlist.append(x)  
             
@@ -313,73 +383,10 @@ def searchStation(user, pw, keyword, station, date, page):
     # now parse
     return functions.scanList(data)
 
-def getPlayLink(user, pw, eid, rid, mode):
-    
-    # init browser
-    br = mechanize.Browser()
-    br.set_handle_robots(False)
-
-    br.open("http://www.onlinetvrecorder.com/v2/?go=home")
-
-    # login
-    br.select_form('fhomelogin')
-
-    br['email'] = user
-    br['password'] = pw
-    br.submit().read()
-    
-    # logged in
-        
-    params = {u'eid': eid, u'rid': rid, u'mode': mode}
-    data = urllib.urlencode(params)
-
-    response = br.open("http://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php",  data)
-    result = response.read() 
-
-    q = result[:2]
-    if(q == 'OK'):
-        
-        # result is OK
-        url = result[3:]
-        
-        response = br.open(url)
-        result = response.read()
-        
-        if mode <> 'normal':
-                
-            wait = 10; # default, we need to wait
-        
-            m = re.search('waittime=(?P<time>[^;]*);', result)
-            if m is not None:
-                t = m.group('time')
-                wait = int(t)
-        
-            wait = wait +1;
-        
-            while wait > 0:
-                time.sleep(1)
-                wait = wait - 1
-        
-            # now reload as the script
-            response = br.reload()
-            result = response.read() 
-        
-        m = re.search('source.src="(?P<url>[^"]*)"', result)
-        if m is not None:
-            t = m.group('url')
-            return t
-        
-        m = re.search('init_player."(?P<url>[^"]*)"', result)
-        if m is not None:
-            t = m.group('url')
-            return t
-        
-        return None
-
 def searchGroup(user, pw, group, page):
     
     link = functions.getGroupString(group, page)
-    data = functions.getHTML(user, pw, link)
+    data = functions.getPostHTML(user, pw, link)
     
     # now parse
     return functions.scanList(data)
@@ -390,25 +397,9 @@ def getRecords(user, pw, page):
     link = functions.getRecordsString(page)
     data = functions.getHTML(user, pw, link)
     
-    #text_file = open("c:\\temp\\005.htm", "w")
-    #text_file.write(data)
-    #text_file.close()
-    
     # now parse
     return functions.scanList(data)
 
-def getList(user, pw, no, page):
-    
-    # calculate start
-    iPage = int(page)
-    x = (iPage - 1) * 20
-    
-    # get HTML
-    link = "http://www.onlinetvrecorder.com/v2/?go=list&tab=toplist&listid=" +  no + "&start=" + str(x)
-    data = functions.getHTML(user, pw, link)
-    
-    # now parse
-    return functions.scanList(data)
 
 
 
