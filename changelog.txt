@@ -1,4 +1,6 @@
-[B]Version 1.0.9- 2017-08-08[/B]
+[B]Version 1.0.10 - 2017-08-10[/B]
+fixed recordings and now use https
+[B]Version 1.0.9 - 2017-08-08[/B]
 Changes on website
 [B]Version 1.0.8 - 2017-04-02[/B]
 Fixed search if bank characters uses, also use UTF for Beautifulsoup
