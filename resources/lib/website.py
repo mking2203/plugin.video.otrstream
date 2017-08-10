@@ -88,7 +88,7 @@ def getData(user, pw, cookiePath):
 
     itemlist = []
     
-    link = 'http://www.onlinetvrecorder.com/v2/?go=home'
+    link = 'https://www.onlinetvrecorder.com/v2/?go=home'
     result = getHTML(user, pw, cookiePath, link)    
  
     data = result.replace('\'','\"') 
@@ -114,7 +114,7 @@ def getMoreData(user, pw, cookiePath, page):
     params = {u'language': 'de', u'start': str(select)}
     data = urllib.urlencode(params)
 
-    response = br.open("http://www.onlinetvrecorder.com/v2/ajax/get_homethree.php",  data)
+    response = br.open("https://www.onlinetvrecorder.com/v2/ajax/get_homethree.php",  data)
     result = response.read() 
     
     result = result.replace('\'','\"')
@@ -324,7 +324,7 @@ def getMovies(user, pw, cookiePath, epg_id):
     itemlist = []
 
     # get HTML
-    link = 'http://www.onlinetvrecorder.com/v2/?go=download&epg_id=' + epg_id 
+    link = 'https://www.onlinetvrecorder.com/v2/?go=download&epg_id=' + epg_id 
     data = getHTML(user, pw, cookiePath, link)    
     
     result = data.replace('\'','\"')
@@ -434,7 +434,7 @@ def getList(user, pw, cookiePath, no, page):
     x = (iPage - 1) * 20
     
     # get HTML
-    link = "http://www.onlinetvrecorder.com/v2/?go=list&tab=toplist&listid=" +  no + "&start=" + str(x)
+    link = "https://www.onlinetvrecorder.com/v2/?go=list&tab=toplist&listid=" +  no + "&start=" + str(x)
     data = getPostHTML(user, pw, cookiePath, link)
     
     # now parse
@@ -453,11 +453,11 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
     params = {u'eid': eid, u'rid': rid, u'mode': mode}
     data = urllib.urlencode(params)
     
-    #request = mechanize.Request('http://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php')
+    #request = mechanize.Request('https://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php')
     #response = mechanize.urlopen(request, data=data)
     
     try:
-        response = br.open("http://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php",  data)
+        response = br.open("https://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php",  data)
         result = response.read() 
      
         q = result[:2]
