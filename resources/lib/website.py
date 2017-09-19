@@ -11,6 +11,7 @@ from BeautifulSoup import BeautifulSoup
 import time, os, datetime
 import urllib, cookielib
 import searchStrings
+import xbmc
 
 class ItemClass(object):
     pass
@@ -24,7 +25,7 @@ def deleteCookie(cookiePath):
         print ("BROWSER " + str(e))
 def checkCookie(cookiePath):
         
-    date = datetime.datetime.now() - datetime.timedelta(minutes = 5)
+    date = datetime.datetime.now() - datetime.timedelta(minutes = 20)
     ts = time.mktime(date.timetuple())
  
     if(os.path.exists(cookiePath)):
@@ -46,7 +47,7 @@ def login(user, pw, cookiePath):
     br.set_cookiejar(cj)    
     br.set_handle_robots(False)
 
-    br.open("http://www.onlinetvrecorder.com/v2/?go=home")
+    br.open("https://www.onlinetvrecorder.com/v2/?go=home")
 
     # login form
     br.select_form('fhomelogin')
@@ -54,8 +55,42 @@ def login(user, pw, cookiePath):
     br['email'] = user
     br['password'] = pw
     
-    br.submit().read()
+    result = br.submit().read()
     
+    # get user and pw and set cookies
+    m = re.search('otr_email=(.*?);', result)
+    em = m.group(1)
+    m = re.search('otr_password=(.*?);', result)
+    pw = m.group(1)  
+    
+    date = datetime.datetime.now()
+    ts = time.mktime(date.timetuple())
+    ts = ts + 86400
+    
+    c = cookielib.Cookie(version=0, name='otr_email', value=em, port=None, port_specified=False, domain='onlinetvrecorder.com',
+                         domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
+                         secure=False, expires=ts, discard=True, comment=None, comment_url=None,
+                         rest={'HttpOnly': None}, rfc2109=False)
+    cj.set_cookie(c)
+    c = cookielib.Cookie(version=0, name='otr_email', value=em, port=None, port_specified=False, domain='www.onlinetvrecorder.com',
+                         domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
+                         secure=False, expires=ts, discard=True, comment=None, comment_url=None,
+                         rest={'HttpOnly': None}, rfc2109=False)
+    cj.set_cookie(c)
+    
+    c = cookielib.Cookie(version=0, name='otr_password', value=pw, port=None, port_specified=False, domain='onlinetvrecorder.com',
+                         domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
+                         secure=False, expires=ts, discard=True, comment=None, comment_url=None,
+                         rest={'HttpOnly': None}, rfc2109=False)
+    cj.set_cookie(c)
+    c = cookielib.Cookie(version=0, name='otr_password', value=pw, port=None, port_specified=False, domain='www.onlinetvrecorder.com',
+                         domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
+                         secure=False, expires=ts, discard=True, comment=None, comment_url=None,
+                         rest={'HttpOnly': None}, rfc2109=False)
+    cj.set_cookie(c)
+
+    
+    #now reload
     response = br.reload();
     result = response.read()  
     
@@ -452,52 +487,37 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
     
     params = {u'eid': eid, u'rid': rid, u'mode': mode}
     data = urllib.urlencode(params)
-    
-    #request = mechanize.Request('https://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php')
-    #response = mechanize.urlopen(request, data=data)
-    
+        
     try:
         response = br.open("https://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php",  data)
         result = response.read() 
-     
+             
         q = result[:2]
         if(q == 'OK'):
         
             # result is OK
             url = result[3:]
         
-            response = br.open(url)
-            result = response.read()
-          
             if mode <> 'normal':
-                
-                wait = 10; # default, we need to wait
         
-                m = re.search('waittime=(?P<time>[^;]*);', result)
-                if m is not None:
-                    t = m.group('time')
-                    wait = int(t)
-        
-                wait = wait +1;
-        
-                while wait > 0:
-                    time.sleep(1)
-                    wait = wait - 1
-             
-                # now reload as the script
-                response = br.reload()
-                result = response.read() 
-                 
-            m = re.search('source.src="(?P<url>[^"]*)"', result)
-            if m is not None:
-                t = m.group('url')
+                t = url.replace('player.php?','')
+                t = t.replace('www.onlinetvrecorder.com/v2/downloadserverredirect/?url=','')
+            
                 return t
-        
-            m = re.search('init_player."(?P<url>[^"]*)"', result)
-            if m is not None:
-                t = m.group('url')
-                return t
-        
+            else:
+                response = br.open(url)
+                result = response.read()
+            
+                m = re.search('source.src="(?P<url>[^"]*)"', result)
+		if m is not None:
+		    t = m.group('url')
+		    return t
+		        
+		m = re.search('init_player."(?P<url>[^"]*)"', result)
+		if m is not None:
+		    t = m.group('url')
+                    return t
+        else:
             return None
             
     except mechanize.HTTPError as e:

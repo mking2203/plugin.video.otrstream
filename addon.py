@@ -264,12 +264,9 @@ def showMovie(eid, rid, mode):
     # continue ok
     ok = True
     
-    if mode <> 'normal':
-        xbmc.executebuiltin('Notification(Free-Stream,Praesentiert von: FernsehFee.de, 10000)')
-    else:
-        if(warn):
-            ok = False    
-            ok = xbmcgui.Dialog().yesno('otrstream', __addon.getLocalizedString(30014), __addon.getLocalizedString(30015) )
+    if(warn):
+        ok = False    
+        ok = xbmcgui.Dialog().yesno('otrstream', __addon.getLocalizedString(30014), __addon.getLocalizedString(30015) )
     
     if(ok or (not warn)):
         link = website.getPlayLink(user, pw, __cookiePath, eid, rid, mode)
