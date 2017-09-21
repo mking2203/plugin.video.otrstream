@@ -57,11 +57,16 @@ def login(user, pw, cookiePath):
     
     result = br.submit().read()
     
+    em = ''
+    pw = ''
+    
     # get user and pw and set cookies
     m = re.search('otr_email=(.*?);', result)
-    em = m.group(1)
+    if(m != None):
+        em = m.group(1)
     m = re.search('otr_password=(.*?);', result)
-    pw = m.group(1)  
+    if(m != None):
+        pw = m.group(1)  
     
     date = datetime.datetime.now()
     ts = time.mktime(date.timetuple())
