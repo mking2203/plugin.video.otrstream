@@ -52,10 +52,14 @@
   <string id="30080">Benutzer Suche 1</string>
   <string id="30081">Benutzer Suche 2</string>
   <string id="30082">Benutzer Suche 3</string>
+  <string id="30085">nur deutsche Sender</string>
   
   <string id="30090">Eigene Top Liste 1</string>
   <string id="30091">Eigene Top Liste 2</string>
   <string id="30092">Eigene Top Liste 3</string>
   <string id="30093">Eigene Top Liste 4</string>
+  
+  <string id="30100">Anmeldung an OTR</string>
+  <string id="30101">Anmeldung fehlgeschlagen !</string>
   
 </strings>

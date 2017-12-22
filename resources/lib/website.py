@@ -228,7 +228,7 @@ def scanData(html):
 
             text1 = table.find('div' , {'class' : 'homedoublehighlight'} )
             x.text = text1.text
-            x.text = x.text.replace('|','\n')          
+            x.text = x.text.replace('|',' ')          
             x.vid = ''
             
             itemlist.append(x)
@@ -276,7 +276,7 @@ def scanData(html):
         desc = c.find('div' , {'class' : 'homethreec'} )
         
         x.text = desc.text
-        x.text = x.text.replace('|','\n')
+        x.text = x.text.replace('|',' ')
         
         match = re.search('[^\d+\W+].*', x.text)
         if(match is not None):
@@ -311,7 +311,7 @@ def scanList(data):
         desc = c.find('span' , id=lambda x: x and x.startswith('spanlongtext'))
         if not (desc is None):
             x.desc = desc.text
-            x.desc = x.desc.replace('|','\n')
+            x.desc = x.desc.replace('|',' ')
 
         x.thumb = 'DefaultVideo.png' 
         pict = c.find('td' , id=lambda x: x and x.startswith('listimagetd'))
@@ -434,9 +434,32 @@ def getMovies(user, pw, cookiePath, epg_id):
             
     return itemlist
     
-def search(user, pw, cookiePath, keyword, page):
+def getScreenshots(user, pw, cookiePath, epg_id):
+
+    itemlist = []
+
+    # get HTML
+    link = 'https://www.onlinetvrecorder.com/v2/?go=download&epg_id=' + epg_id
+    data = getHTML(user, pw, cookiePath, link)
+    
+    regex = '<center>Screenshot.*?img.src=(?P<url>.*?).width'
+        
+    cnt =1
+    for m in re.finditer(regex, data, re.DOTALL):
+       
+        x = ItemClass()
+        
+        x.url = m.group('url')
+        x.title = str(cnt)
+        cnt = cnt + 1
+        
+        itemlist.append(x)
+        
+    return itemlist
+    
+def search(user, pw, cookiePath, keyword, page, de):
            
-    link = searchStrings.getSearchString(keyword, page)
+    link = searchStrings.getSearchString(keyword, page, de)
     data = getPostHTML(user, pw, cookiePath, link) 
     
     # now parse

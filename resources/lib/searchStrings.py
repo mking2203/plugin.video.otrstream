@@ -1,6 +1,6 @@
 from datetime import date
 
-def getSearchString(keyword, page):
+def getSearchString(keyword, page, de):
     
     keyword = keyword.replace(' ','+')
     
@@ -32,7 +32,10 @@ def getSearchString(keyword, page):
     s += '&times='
     s += '&intext=0'
     s += '&exact=0'
-    s += '&cbde=0'
+    if(de):
+        s += '&cbde=1'    
+    else:
+        s += '&cbde=0'
     s += '&cbsing=0'
     s += '&cben=0'
     s += '&cbxy=0'

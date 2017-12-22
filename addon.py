@@ -47,6 +47,7 @@ from datetime import datetime
 
 CommonRootView = 50
 FullWidthList = 51
+Shift = 53
 ThumbnailView = 500
 PictureWrapView = 510
 PictureThumbView = 514
@@ -229,6 +230,9 @@ def showCategory(epg_id, iTitle):
     password = xbmcplugin.getSetting(_handle, 'pass')
     
     mList = website.getMovies(login, password, __cookiePath, epg_id)
+    
+    addPictureItem('Screenshots', _url + '?screenshot=' + epg_id, 'DefaultFolder.png')
+    
     for aItem in mList:
         title = aItem.title
         url = aItem.url
@@ -251,6 +255,26 @@ def showCategory(epg_id, iTitle):
             addPictureItem2s(aItem.title + " / " + price, url, thumb, aItem.desc, aItem.stars) 
         
     xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView2)
+    xbmcplugin.endOfDirectory(_handle) 
+    
+def showScreenshot(epg_id):
+     
+    if __debug:
+        xbmc.log('- screenshot - ' + epg_id) 
+        
+    xbmcplugin.setContent(_handle, 'movies')
+      
+    # user data                              
+    login = xbmcplugin.getSetting(_handle, 'email')
+    password = xbmcplugin.getSetting(_handle, 'pass')
+    
+    mList = website.getScreenshots(login, password, __cookiePath, epg_id)
+    
+    if mList is not None:
+        for aItem in mList:
+            addPictureItem(aItem.title, '', aItem.url)
+      
+    xbmc.executebuiltin('Container.SetViewMode(%d)' % Shift)
     xbmcplugin.endOfDirectory(_handle) 
  
 def showMovie(eid, rid, mode):
@@ -318,7 +342,9 @@ def search():
             
             addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=2', 'DefaultFolder.png') 
                       
-            hList = website.search(login, password, __cookiePath, keyword, '1')
+            de = xbmcplugin.getSetting(_handle, 'searchDE')== "true" 
+            hList = website.search(login, password, __cookiePath, keyword, '1', de)
+            
             for aItem in hList:
                 id = aItem.id
                 title = aItem.title
@@ -371,8 +397,10 @@ def searchStation():
             xbmcplugin.setContent(_handle, 'movies') 
             
             #addPictureItem(__addon.getLocalizedString(30020), _url + '?station=' + station + '&page=2&keyword=' + keyword, 'DefaultFolder.png') 
-                      
-            hList = website.searchStation(login,password, __cookiePath, keyword, station, date, '1')
+            
+            de = xbmcplugin.getSetting(_handle, 'searchDE')== "true"           
+            hList = website.searchStation(login,password, __cookiePath, keyword, station, date, '1', de)
+            
             for aItem in hList:
                 id = aItem.id
                 title = aItem.title
@@ -409,8 +437,10 @@ def searchPage(keyword, page, station=None):
         addPictureItem(__addon.getLocalizedString(30021), _url + '?search=' + keyword + '&page=' + str(x), 'DefaultFolder.png') 
         x = iPage + 1
         addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=' + str(x), 'DefaultFolder.png') 
-                     
-    hList = website.search(login,password, __cookiePath, keyword, page)
+    
+    de = xbmcplugin.getSetting(_handle, 'searchDE')== "true"
+    hList = website.search(login,password, __cookiePath, keyword, page, de)
+    
     for aItem in hList:
         id = aItem.id
         title = aItem.title
@@ -446,8 +476,9 @@ def searchGroup(group , page):
         addPictureItem(__addon.getLocalizedString(30021), _url + '?search=' + group + '&page=' + str(x), 'DefaultFolder.png') 
         x = iPage + 1
         addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + group + '&page=' + str(x), 'DefaultFolder.png') 
-                 
-    hList = website.searchGroup(login, password, __cookiePath, group, page)
+    
+    de = xbmcplugin.getSetting(_handle, 'searchDE')== "true" 
+    hList = website.searchGroup(login, password, __cookiePath, group, page, de)
     
     for aItem in hList:
         id = aItem.id
@@ -614,16 +645,20 @@ try:
     # check login
     check = website.checkCookie(__cookiePath)
     if(not check):
-        xbmcgui.Dialog().notification(__addonname, 'login to website', time=3000)
+        xbmcgui.Dialog().notification(__addonname, __addon.getLocalizedString(30100), time=3000)
         
         user = xbmcplugin.getSetting(_handle, 'email')
         pw = xbmcplugin.getSetting(_handle, 'pass')
-        website.login(user, pw, __cookiePath)
+        login = website.login(user, pw, __cookiePath)
+        if(login.state == 'not loged in'):
+            xbmcgui.Dialog().notification(__addonname, __addon.getLocalizedString(30101), time=5000)
   
     if PARAMS.has_key('categories'):
         showCategory(PARAMS['categories'][0], PARAMS['title'][0])
     elif PARAMS.has_key('movie'):
         showMovie(PARAMS['eid'][0], PARAMS['rid'][0], PARAMS['movie'][0])
+    elif PARAMS.has_key('screenshot'):
+        showScreenshot(PARAMS['screenshot'][0])
     elif PARAMS.has_key('preview'):
         showPreview(PARAMS['preview'][0],PARAMS['title'][0])
     elif PARAMS.has_key('actual'):

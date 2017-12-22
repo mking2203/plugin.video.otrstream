@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.otrstream" version="1.0.12" name="otrstream" provider-name="M. King">
+<addon id="plugin.video.otrstream" version="1.0.14" name="otrstream" provider-name="M. King">
     <requires>
         <import addon="xbmc.python" version="2.14.0"/>
         <import addon="xbmc.addon" version="13.0.0" />
@@ -13,11 +13,12 @@
     <extension point="xbmc.addon.metadata">
         <summary lang="en">otrstream</summary>
         <description lang="en">This addon gives access to the online video recorder at http://www.onlinetvrecorder.com</description>
+        <description lang="de">Mit diesem Addon können Sie Streams des Online Videorecorders abspielen. Besuchen Sie http://www.onlinetvrecorder.com für mehr Informationen.</description>
         <license>GPL 2.0</license>
         <platform>all</platform>
-        <language>en</language>
+        <language>de</language>
         <email>mark.koenig@kleiner-schelm.de</email>
-        <website>https://github.com/mking2203/plugin.video.otrstream</website>
+        <website>https://www.kodinerds.net/index.php/Thread/51548-Release-otrstrem-Plugin-f%C3%BCr-OTR-www-onlinetvrecorder-com</website>
         <source>https://github.com/mking2203/plugin.video.otrstream</source>
     </extension>
 </addon>
