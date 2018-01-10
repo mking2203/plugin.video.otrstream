@@ -1,3 +1,5 @@
+[B]Version 1.0.15 - 2018-01-10[/B]
+UTF characters search possible
 [B]Version 1.0.14 - 2017-12-22[/B]
 search only DE option
 posible to show screenshots

@@ -119,9 +119,9 @@ def mainSelector():
     addPictureItem(__addon.getLocalizedString(30031), _url + '?search=now', 'DefaultFolder.png')  # suche
     addPictureItem(__addon.getLocalizedString(30037), _url + '?station=now', 'DefaultFolder.png')  # suche station
     
-    str1 = __addon.getSetting('search1')
-    str2 = __addon.getSetting('search2')
-    str3 = __addon.getSetting('search3')
+    str1 = __addon.getSetting('search1').decode("utf-8")
+    str2 = __addon.getSetting('search2').decode("utf-8")
+    str3 = __addon.getSetting('search3').decode("utf-8")
     
     if(str1 <>''):
         addPictureItem(__addon.getLocalizedString(30031) + ' : ' + str1, _url + '?search=' + str1 + '&page=1', 'DefaultFolder.png')
