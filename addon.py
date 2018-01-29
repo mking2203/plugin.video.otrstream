@@ -294,6 +294,8 @@ def showMovie(eid, rid, mode):
     
     if(ok or (not warn)):
         link = website.getPlayLink(user, pw, __cookiePath, eid, rid, mode)
+        if(not link.startswith('http')):
+            link = 'https:' + link
     else:
         link = None
     
