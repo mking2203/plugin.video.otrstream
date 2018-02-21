@@ -1,7 +1,10 @@
-# coding=utf-8
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 #
 #    copyright (C) 2017 Mark Koenig
 #
+#    GUI EPG:
 #    based on ZattooBoxExtended by Daniel Griner (griner.ch@gmail.com) License under GPL
 #    based on ZattooBox by Pascal Nançoz (nancpasc@gmail.com) Licence under BSD 2 clause
 
@@ -33,6 +36,7 @@ if REMOTE_DBG:
 
 
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon 
+import xbmcvfs
 import sys, urlparse, os
 import time
 
@@ -68,11 +72,11 @@ __icon = __addon.getAddonInfo('icon')
 __addonpath = __addon.getAddonInfo('path').decode("utf-8")
 __debug = __addon.getSetting('debug') == "true" 
 
-__profilePath = xbmc.translatePath(__addon.getAddonInfo('profile'))
-if not os.path.exists(__profilePath): os.makedirs(profilePath)
+__profilePath = xbmc.translatePath(__addon.getAddonInfo('profile')).decode("utf-8")
+if not xbmcvfs.exists(__profilePath): xbmcvfs.mkdirs(__profilePath)
 __cookiePath = os.path.join(__profilePath, "cookie.db")
 
-__resource  = xbmc.translatePath(os.path.join(__addonpath, 'resources', 'lib' ).encode("utf-8") ).decode("utf-8")
+__resource  = xbmc.translatePath(os.path.join(__addonpath, 'resources', 'lib' )).decode("utf-8")
 sys.path.append(__resource)
 
 import website
@@ -480,7 +484,7 @@ def searchGroup(group , page):
         addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + group + '&page=' + str(x), 'DefaultFolder.png') 
     
     de = xbmcplugin.getSetting(_handle, 'searchDE')== "true" 
-    hList = website.searchGroup(login, password, __cookiePath, group, page, de)
+    hList = website.searchGroup(login, password, __cookiePath, group, page)
     
     for aItem in hList:
         id = aItem.id

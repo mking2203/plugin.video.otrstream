@@ -1,3 +1,7 @@
+[B]Version 1.0.17 - 2018-02-21[/B]
+add jump function for EPG
+fixed GENRE
+fixed a bug if pathname contains special characters
 [B]Version 1.0.16 - 2018-01-29[/B]
 fixed https for free video
 [B]Version 1.0.15 - 2018-01-10[/B]

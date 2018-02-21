@@ -21,6 +21,7 @@
 #
 
 import xbmc, xbmcgui, xbmcaddon, os, xbmcplugin, datetime, time
+import xbmcvfs
 import json, sys
 
 import functions
@@ -56,7 +57,7 @@ class otrDB(object):
   def __init__(self):
     self.conn = None
     profilePath = xbmc.translatePath(__addon__.getAddonInfo('profile'))
-    if not os.path.exists(profilePath): os.makedirs(profilePath)
+    if not xbmcvfs.exists(profilePath): xbmcvfs.mkdirs(profilePath)
     self.databasePath = os.path.join(profilePath, "otr.db")
     self.connectSQL()
     

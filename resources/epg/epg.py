@@ -310,13 +310,24 @@ class EPG(xbmcgui.WindowXML):
 			self.onRedrawEPG(self.channelIdx, self.viewStartDate)
 		
 		if self.isClosing: return
-
+		
 		program = self._getProgramFromControl(self.getControl(controlId))
 		if program is None: return
 
 		start = int(time.mktime(program['start_date'].timetuple()))
 		end = int(time.mktime(program['end_date'].timetuple()))
 		now = time.time()
+
+		name = _otrDB_.get_channeltitle(program['channel'])
+
+		ret = xbmcgui.Dialog().yesno('Zur Sendung springen ?',name  + ': ' + program['title'], program['start_date'].strftime('%H:%M') + ' - ' + program['end_date'].strftime('%H:%M'))
+                url = "plugin://" + __addonId__ + "/?categories=" + program['showID'] + "&title=" + program['title']
+                #xbmc.executebuiltin('XBMC.RunPlugin(%s)' % url)
+                if ret:
+                    xbmc.executebuiltin('ActivateWindow(Videos,'+ url +')')
+
+                return
+		
 		if SWISS == 'true':
 			# if startime is in the future -> setup recording
 			if start > now :
