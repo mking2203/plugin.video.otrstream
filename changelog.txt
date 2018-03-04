@@ -1,3 +1,6 @@
+[B]Version 1.0.18 - 2018-03-04[/B]
+website changed
+title in description on movies
 [B]Version 1.0.17 - 2018-02-21[/B]
 add jump function for EPG
 fixed GENRE

@@ -6,7 +6,7 @@
 #
 #    GUI EPG:
 #    based on ZattooBoxExtended by Daniel Griner (griner.ch@gmail.com) License under GPL
-#    based on ZattooBox by Pascal Nançoz (nancpasc@gmail.com) Licence under BSD 2 clause
+#    based on ZattooBox by Pascal NanÃ§oz (nancpasc@gmail.com) Licence under BSD 2 clause
 
 #    This file is part of otrstream
 #

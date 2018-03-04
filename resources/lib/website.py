@@ -324,7 +324,7 @@ def scanList(data):
         genre = c.find('p' , style=lambda x: x and x.startswith('text-transform:capitalize'))
         if not(genre is None):
             x.genre = genre.text
-    
+
         data = c.findAll('td' , oncontextmenu=lambda x: x and x.startswith('showNewTabMenu'))
         start = ''
         stop = ''
@@ -333,10 +333,10 @@ def scanList(data):
         x.episode = ''
         x.date = ''
         x.time = ''
-    
+
         for d in data:
             tmp = d.text
-        
+
             if len(tmp) == 3:
                 if(tmp[0] == 'S'):
                     ser = tmp[1:]
@@ -354,7 +354,7 @@ def scanList(data):
                     x.time = tmp
                 else:
                     stop = tmp
-       
+
         itemlist.append(x)
     
     return itemlist
@@ -407,7 +407,7 @@ def getMovies(user, pw, cookiePath, epg_id):
         x.title = "Preview"
         x.price = "0,00 Cent"
         x.thumb = thumb
-        x.desc = desc
+        x.desc = title + '\n' + desc
         x.stars = stars
         
         itemlist.append(x)
@@ -427,7 +427,7 @@ def getMovies(user, pw, cookiePath, epg_id):
         x.title = test
         x.price = m.group('price')
         x.thumb = thumb
-        x.desc = desc
+        x.desc = title + '\n' + desc
         x.stars = stars
             
         itemlist.append(x)  
@@ -518,33 +518,43 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
         
     try:
         response = br.open("https://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php",  data)
-        result = response.read() 
+        result = response.read()
              
         q = result[:2]
         if(q == 'OK'):
-        
             # result is OK
             url = result[3:]
-        
+
             if mode <> 'normal':
-        
                 t = url.replace('player.php?','')
                 t = t.replace('www.onlinetvrecorder.com/v2/downloadserverredirect/?url=','')
-            
                 return t
             else:
                 response = br.open(url)
                 result = response.read()
             
                 m = re.search('source.src="(?P<url>[^"]*)"', result)
-		if m is not None:
-		    t = m.group('url')
-		    return t
-		        
-		m = re.search('init_player."(?P<url>[^"]*)"', result)
-		if m is not None:
-		    t = m.group('url')
+                if m is not None:
+                    t = m.group('url')
                     return t
+
+                m = re.search('init_player."(?P<url>[^"]*)"', result)
+                if m is not None:
+                    t = m.group('url')
+                    return t
+
+                # new 04.03.2018 // redirect
+                m = re.search('location.href="(?P<url>[^"]*)"', result)
+                if m is not None:
+                    url = m.group('url')
+                    response = br.open(url)
+                    result = response.read()
+
+                    m = re.search('init_player."(?P<url>[^"]*)"', result)
+                    if m is not None:
+                        t = m.group('url')
+                        return t
+
         else:
             return None
             
@@ -553,3 +563,4 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
         return 'ERROR ' + str(e.code)
     except mechanize.URLError as e:
         return 'ERROR ' + str(e.reason.args)
+
