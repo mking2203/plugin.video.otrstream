@@ -1,3 +1,5 @@
+[B]Version 1.0.19 - 2018-03-25[/B]
+add function to jump to prev/next show
 [B]Version 1.0.18 - 2018-03-04[/B]
 website changed
 title in description on movies
