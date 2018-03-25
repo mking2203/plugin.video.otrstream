@@ -17,34 +17,35 @@ class ItemClass(object):
     pass
 
 def deleteCookie(cookiePath):
-    
+
     try:
         if os.path.isfile(cookiePath):
             os.unlink(cookiePath)
     except Exception as e:
         print ("BROWSER " + str(e))
+
 def checkCookie(cookiePath):
-        
+
     date = datetime.datetime.now() - datetime.timedelta(minutes = 20)
     ts = time.mktime(date.timetuple())
- 
+
     if(os.path.exists(cookiePath)):
         fileDate = os.path.getmtime(cookiePath)
         if(ts>fileDate):
             deleteCookie(cookiePath)
             return False
         else:
-            return True   
-    
+            return True
+
     return False
 
 def login(user, pw, cookiePath):
-    
+
     br = mechanize.Browser()
-    
+
     cj = cookielib.LWPCookieJar()
-    
-    br.set_cookiejar(cj)    
+
+    br.set_cookiejar(cj)
     br.set_handle_robots(False)
 
     br.open("https://www.onlinetvrecorder.com/v2/?go=home")
@@ -54,24 +55,24 @@ def login(user, pw, cookiePath):
 
     br['email'] = user
     br['password'] = pw
-    
+
     result = br.submit().read()
-    
+
     em = ''
     pw = ''
-    
+
     # get user and pw and set cookies
     m = re.search('otr_email=(.*?);', result)
     if(m != None):
         em = m.group(1)
     m = re.search('otr_password=(.*?);', result)
     if(m != None):
-        pw = m.group(1)  
-    
+        pw = m.group(1)
+
     date = datetime.datetime.now()
     ts = time.mktime(date.timetuple())
     ts = ts + 86400
-    
+
     c = cookielib.Cookie(version=0, name='otr_email', value=em, port=None, port_specified=False, domain='onlinetvrecorder.com',
                          domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
                          secure=False, expires=ts, discard=True, comment=None, comment_url=None,
@@ -82,7 +83,7 @@ def login(user, pw, cookiePath):
                          secure=False, expires=ts, discard=True, comment=None, comment_url=None,
                          rest={'HttpOnly': None}, rfc2109=False)
     cj.set_cookie(c)
-    
+
     c = cookielib.Cookie(version=0, name='otr_password', value=pw, port=None, port_specified=False, domain='onlinetvrecorder.com',
                          domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
                          secure=False, expires=ts, discard=True, comment=None, comment_url=None,
@@ -94,17 +95,17 @@ def login(user, pw, cookiePath):
                          rest={'HttpOnly': None}, rfc2109=False)
     cj.set_cookie(c)
 
-    
+
     #now reload
     response = br.reload();
-    result = response.read()  
-    
+    result = response.read()
+
     x = ItemClass()
     x.state = 'not loged in'
     x.id = '0'
-    x.decode = '0' 
+    x.decode = '0'
     x.value = '0'
-      
+
     # info fron website
     match = re.search('my_user_id="(?P<id>.*?)";.*?my_ut="(?P<state>.*?)"', result)
     if(match != None):
@@ -113,29 +114,29 @@ def login(user, pw, cookiePath):
 
             x.id = match.group('id')
             x.state = match.group('state').title()
-                 
+
         match = re.search('<a.href=".?go=history&tab=decodings(.*?)<\/i>(?P<value>[^<]*)<', result)
         if(match != None):
             x.decode = match.group('value')
-                
+
         match = re.search('<div.id="cssmenuright">.*?<a.href=".go=points.*?>(?P<value>[^<]*)<', result, re.DOTALL)
         if(match != None):
             x.value = match.group('value')
-            
+
     return x
-    
+
 def getData(user, pw, cookiePath):
 
     itemlist = []
-    
+
     link = 'https://www.onlinetvrecorder.com/v2/?go=home'
-    result = getHTML(user, pw, cookiePath, link)    
- 
-    data = result.replace('\'','\"') 
-    return scanData(data)   
+    result = getHTML(user, pw, cookiePath, link)
+
+    data = result.replace('\'','\"')
+    return scanData(data)
 
 def getMoreData(user, pw, cookiePath, page):
-    
+
     br = mechanize.Browser()
 
     cj = cookielib.LWPCookieJar()
@@ -143,23 +144,23 @@ def getMoreData(user, pw, cookiePath, page):
 
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
-    
-    select = 0 
-    
+
+    select = 0
+
     if(page == 2):
         select = 14
     if(page > 2):
         select = (15 * (page-1)) - 1
-        
+
     params = {u'language': 'de', u'start': str(select)}
     data = urllib.urlencode(params)
 
     response = br.open("https://www.onlinetvrecorder.com/v2/ajax/get_homethree.php",  data)
-    result = response.read() 
-    
+    result = response.read()
+
     result = result.replace('\'','\"')
     return scanData(result)
-    
+
 def getHTML(user, pw, cookiePath, link):
 
     br = mechanize.Browser()
@@ -169,94 +170,99 @@ def getHTML(user, pw, cookiePath, link):
 
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
-    
+
     response = br.open(link)
-    result = response.read()    
-    
-    return result 
-    
+    result = response.read()
+
+    return result
+
 def getPostHTML(user, pw, cookiePath, link):
 
-    br = mechanize.Browser()
+    #br = mechanize.Browser()
 
-    cj = cookielib.LWPCookieJar()
-    cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
+    #cj = cookielib.LWPCookieJar()
+    #cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
 
-    br.set_cookiejar(cj)
-    br.set_handle_robots(False)
-    
-    request = mechanize.Request(link)
-    response = mechanize.urlopen(request)
-        
-    result = response.read()
+    #br.set_cookiejar(cj)
+    #br.set_handle_robots(False)
+
+    result = None
+
+    try:
+        request = mechanize.Request(link)
+        response = mechanize.urlopen(request)
+        result = response.read()
+    except:
+        pass
+
     return result
-    
+
 def scanData(html):
 
     soup = BeautifulSoup(html)
     itemlist = []
 
     # search for highlights
-    
-    tables = soup.findAll('div' , {'class' : 'content'} ) 
-    
+
+    tables = soup.findAll('div' , {'class' : 'content'} )
+
     for table in tables:
         # check its the right table
         taList = table.find('div' , {'class' : 'homedoublehighlight'})
         if taList is not None:
 
             x = ItemClass()
-        
+
             taList = table.find('td')
             sStyle = taList['style'].encode()
-             
+
             m = re.search('background-image:url\((?P<thumb>.*?)\)', sStyle)
             if(m is not None):
                 x.thumb = m.group('thumb')
             else:
-                x.thumb = 'DefaultVideo.png' 
-        
-            h1 = table.find('a')            
+                x.thumb = 'DefaultVideo.png'
+
+            h1 = table.find('a')
             x.url = h1['href']
-            
-            # we just want the id   
+
+            # we just want the id
             s = x.url.index('id=')
             x.url = x.url[s+3:]
-            
+
             sp = table.find('span')
             x.title = sp.text
 
             text1 = table.find('div' , {'class' : 'homedoublehighlight'} )
             x.text = text1.text
-            x.text = x.text.replace('|',' ')          
+            x.text = x.text.replace('|',' ')
             x.vid = ''
-            
+
             itemlist.append(x)
 
     # search for actual movies
-    
+
     content = soup.findAll ('div' , {'class' : 'homethree'} )
 
     for c in content:
-        
+
         x = ItemClass()
-    
+
         link = c.find('a', {'class' : 'homethreehredbig'} )
         if link is None:
             break
-        
+
         x.url = link['href']
-        
-        # we just want the id   
+
+        # we just want the id
         s = x.url.index('id=')
         x.url = x.url[s+3:]
 
         title = c.find('div' , {'class' : 'toolbardiv'} )
         x.title = title.text
-    
+
         data = c.findAll('div', {'class' : 'homethreee'} )
 
-        x.thumb = 'DefaultVideo.png' 
+        x.thumb = 'DefaultVideo.png'
         x.vid = ''
 
         for e in data:
@@ -272,34 +278,34 @@ def scanData(html):
             vid = e.find('video')
             if vid is not None:
                 x.vid = vid['src']
-    
+
         desc = c.find('div' , {'class' : 'homethreec'} )
-        
+
         x.text = desc.text
         x.text = x.text.replace('|',' ')
-        
+
         match = re.search('[^\d+\W+].*', x.text)
         if(match is not None):
             x.text = match.group(0)
-        
-        itemlist.append(x)    
-    
+
+        itemlist.append(x)
+
     return itemlist
 
 def scanList(data):
-    
+
     itemlist = []
-    
+
     soup = BeautifulSoup(data.decode('utf-8', 'ignore'))
     content = soup.findAll ('tr', id=lambda x: x and x.startswith('serchrow'))
 
     for c in content:
-    
+
         x = ItemClass()
-    
+
         inp = c.find('input', { 'type' : 'hidden'})
         x.id = inp['value']
-    
+
         title = c.find('p' , id=lambda x: x and x.startswith('ptitleandtext'))
         x.title = title.find(text=True).strip()
         #new 05.07.
@@ -313,7 +319,7 @@ def scanList(data):
             x.desc = desc.text
             x.desc = x.desc.replace('|',' ')
 
-        x.thumb = 'DefaultVideo.png' 
+        x.thumb = 'DefaultVideo.png'
         pict = c.find('td' , id=lambda x: x and x.startswith('listimagetd'))
         if not (pict is None):
             pic = pict.find('img')
@@ -328,7 +334,7 @@ def scanList(data):
         data = c.findAll('td' , oncontextmenu=lambda x: x and x.startswith('showNewTabMenu'))
         start = ''
         stop = ''
-        
+
         x.serie = ''
         x.episode = ''
         x.date = ''
@@ -356,7 +362,7 @@ def scanList(data):
                     stop = tmp
 
         itemlist.append(x)
-    
+
     return itemlist
 
 def getMovies(user, pw, cookiePath, epg_id):
@@ -364,42 +370,44 @@ def getMovies(user, pw, cookiePath, epg_id):
     itemlist = []
 
     # get HTML
-    link = 'https://www.onlinetvrecorder.com/v2/?go=download&epg_id=' + epg_id 
-    data = getHTML(user, pw, cookiePath, link)    
-    
+    link = 'https://www.onlinetvrecorder.com/v2/?go=download&epg_id=' + epg_id
+    data = getHTML(user, pw, cookiePath, link)
+
     result = data.replace('\'','\"')
-    
+
     # search the title & text
     title = '?'
-    match = re.search('<div.style="color:#FFF;.*?font-size:20px;([^>]*)>(?P<txt>[^>]*)<', result, re.DOTALL)
-    if(match is not None):
-        title = match.group('txt').strip()
+    #match = re.search('<div.style="color:#FFF;.*?font-size:20px;([^>]*)>(?P<txt>[^>]*)<', result, re.DOTALL)
+    #if(match is not None):
+    #    title = match.group('txt').strip()
+    match = re.search('document.title="(.*?)"', result)
+    title = match.group(1)
 
     desc = '...'
     #match = re.search('<div.style="height:215px;.overflow:auto([^>]*)>(?P<txt>[^>]*)<', result, re.DOTALL)
     match = re.search('currentepgtext[^>]*>(?P<txt>.*?)<.span>', result, re.DOTALL)
     if(match is not None):
         desc = match.group('txt').strip().replace('<br>','\n')
-    
+
     #get stars
-    stars = 0   
+    stars = 0
     regex = 'font-size:21px; color:#FFCA00;'
     for m in re.finditer(regex, result, re.DOTALL):
-        stars += 1   
+        stars += 1
 
-    # search picture   
-    thumb = 'DefaultVideo.png' 
+    # search picture
+    thumb = 'DefaultVideo.png'
 
     match = re.search('<div.id="quickbigimage.*?src="(?P<thumb>[^"]*)"', result)
     if(match != None):
         thumb = match.group('thumb')
-    
+
     match = re.search('<div.id="quickbigimage.*?background-image:url.(?P<thumb>[^)]*)', result)
     if(match != None):
         thumb = match.group('thumb')
 
     # search preview video
-    
+
     match = re.search('<video.id="previewvideo[^>]*>.*?<source.src="(?P<url>[^"]*)"', result, re.DOTALL)
     if(match != None):
         x = ItemClass()
@@ -409,31 +417,65 @@ def getMovies(user, pw, cookiePath, epg_id):
         x.thumb = thumb
         x.desc = title + '\n' + desc
         x.stars = stars
-        
+
         itemlist.append(x)
-    
-    # search video page  
-                   
+
+    # search video page
+
     regex = '<input.type=button.class=epgscreengreenbutton[^>]*startEpgScreenStream\((?P<url>[^)]*)\);".value="(?P<q>.*?)">.*?<td.style=[^>]*>(?P<price>[^<]*)<'
-    
-    for m in re.finditer(regex, result, re.DOTALL): 
-        
+
+    for m in re.finditer(regex, result, re.DOTALL):
+
         test = m.group('q')
         test = test.replace('&raquo;','')
-                        
+
         x = ItemClass()
-            
+
         x.url = m.group('url')
         x.title = test
         x.price = m.group('price')
         x.thumb = thumb
         x.desc = title + '\n' + desc
         x.stars = stars
-            
-        itemlist.append(x)  
-            
+
+        itemlist.append(x)
+
+    # search prev / next video
+
+    regex = 'nextRecordingScreen\((.*?)\)'
+
+    matches = re.findall(regex, result)
+    if (matches is not None):
+        for match in matches:
+            values = match.split(',')
+            beginn = values[4].replace('"','')
+            cs  = values[5].replace('"','')
+            direction = values[6].replace('"','')
+            sender = values[3].replace('"','').replace(' ','%20')
+
+            url = 'https://www.onlinetvrecorder.com/v2/ajax/nextrecording.php'
+            url = url + '?beginn=' + beginn
+            url = url + '&cs=' + cs
+            url = url + '&dir=' + direction
+            url = url + '&sender=' + sender
+
+            print 'Link ' + url
+            link = getPostHTML(user, pw, cookiePath, url)
+
+            if(link is not None):
+                x = ItemClass()
+
+                x.url = link
+                x.title = direction
+                x.price = "0,00 Cent"
+                x.thumb = ''
+                x.desc = ''
+                x.stars = 0
+
+                itemlist.append(x)
+
     return itemlist
-    
+
 def getScreenshots(user, pw, cookiePath, epg_id):
 
     itemlist = []
@@ -441,70 +483,70 @@ def getScreenshots(user, pw, cookiePath, epg_id):
     # get HTML
     link = 'https://www.onlinetvrecorder.com/v2/?go=download&epg_id=' + epg_id
     data = getHTML(user, pw, cookiePath, link)
-    
+
     regex = '<center>Screenshot.*?img.src=(?P<url>.*?).width'
-        
+
     cnt =1
     for m in re.finditer(regex, data, re.DOTALL):
-       
+
         x = ItemClass()
-        
+
         x.url = m.group('url')
         x.title = str(cnt)
         cnt = cnt + 1
-        
+
         itemlist.append(x)
-        
+
     return itemlist
-    
+
 def search(user, pw, cookiePath, keyword, page, de):
-           
+
     link = searchStrings.getSearchString(keyword, page, de)
-    data = getPostHTML(user, pw, cookiePath, link) 
-    
+    data = getPostHTML(user, pw, cookiePath, link)
+
     # now parse
     return scanList(data)
 
 def searchStation(user, pw, cookiePath, keyword, station, date, page):
-           
+
     link = searchStrings.getSearchStationString(keyword, station, date, page)
-    data = getPostHTML(user, pw, cookiePath, link) 
-          
+    data = getPostHTML(user, pw, cookiePath, link)
+
     # now parse
     return scanList(data)
 
 def searchGroup(user, pw, cookiePath, group, page):
-    
+
     link = searchStrings.getGroupString(group, page)
     data = getPostHTML(user, pw, cookiePath, link)
-    
+
     # now parse
     return scanList(data)
 
 def getRecords(user, pw, cookiePath, page):
-    
+
     # get HTML
     link = searchStrings.getRecordsString(page)
     data = getHTML(user, pw, cookiePath, link)
-    
+
     # now parse
     return scanList(data)
-    
+
 def getList(user, pw, cookiePath, no, page):
-    
+
     # calculate start
     iPage = int(page)
     x = (iPage - 1) * 20
-    
+
     # get HTML
     link = "https://www.onlinetvrecorder.com/v2/?go=list&tab=toplist&listid=" +  no + "&start=" + str(x)
     data = getPostHTML(user, pw, cookiePath, link)
-    
+
     # now parse
     return scanList(data)
-    
+
 def getPlayLink(user, pw, cookiePath, eid, rid, mode):
-       
+
     br = mechanize.Browser()
 
     cj = cookielib.LWPCookieJar()
@@ -512,14 +554,14 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
 
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
-    
+
     params = {u'eid': eid, u'rid': rid, u'mode': mode}
     data = urllib.urlencode(params)
-        
+
     try:
         response = br.open("https://www.onlinetvrecorder.com/v2/ajax/start_epg_screen_stream.php",  data)
         result = response.read()
-             
+
         q = result[:2]
         if(q == 'OK'):
             # result is OK
@@ -532,7 +574,7 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
             else:
                 response = br.open(url)
                 result = response.read()
-            
+
                 m = re.search('source.src="(?P<url>[^"]*)"', result)
                 if m is not None:
                     t = m.group('url')
@@ -557,7 +599,7 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
 
         else:
             return None
-            
+
     except mechanize.HTTPError as e:
         print e.code
         return 'ERROR ' + str(e.code)
