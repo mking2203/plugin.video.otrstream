@@ -12,6 +12,7 @@ import time, os, datetime
 import urllib, cookielib
 import searchStrings
 import xbmc
+import requests
 
 class ItemClass(object):
     pass
@@ -161,6 +162,24 @@ def getMoreData(user, pw, cookiePath, page):
     result = result.replace('\'','\"')
     return scanData(result)
 
+def getDecoding(url, params, cookiePath):
+
+    br = mechanize.Browser()
+
+    cj = cookielib.LWPCookieJar()
+    cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
+
+    br.set_cookiejar(cj)
+    br.set_handle_robots(False)
+
+    data = urllib.urlencode(params)
+
+    response = br.open(url,  data)
+    result = response.read()
+
+    result = result.replace('\'','\"')
+    return result
+
 def getHTML(user, pw, cookiePath, link):
 
     br = mechanize.Browser()
@@ -171,20 +190,21 @@ def getHTML(user, pw, cookiePath, link):
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
 
-    response = br.open(link)
+    response = br.open(link, timeout=30)
     result = response.read()
 
     return result
 
+def getAlternateHTML(cookiePath, link):
+
+    cj = cookielib.LWPCookieJar()
+    cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
+
+    resp = requests.post(link, None, None, cookies=cj, timeout=30)
+    
+    return resp.text
+
 def getPostHTML(user, pw, cookiePath, link):
-
-    #br = mechanize.Browser()
-
-    #cj = cookielib.LWPCookieJar()
-    #cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
-
-    #br.set_cookiejar(cj)
-    #br.set_handle_robots(False)
 
     result = None
 
@@ -459,7 +479,6 @@ def getMovies(user, pw, cookiePath, epg_id):
             url = url + '&dir=' + direction
             url = url + '&sender=' + sender
 
-            print 'Link ' + url
             link = getPostHTML(user, pw, cookiePath, url)
 
             if(link is not None):
@@ -606,3 +625,42 @@ def getPlayLink(user, pw, cookiePath, eid, rid, mode):
     except mechanize.URLError as e:
         return 'ERROR ' + str(e.reason.args)
 
+def getDecode(user, pw, cookiePath):
+
+    itemlist = []
+
+    link = 'https://www.onlinetvrecorder.com/v2/?go=history&tab=decodings'
+    result = getAlternateHTML(cookiePath, link)
+
+    result = result.replace('\'','\"')
+    regex = 'loadDecodingTable\("(?P<c>.*?)","(?P<t>.*?)","(?P<x>.*?)","(.*?)","(?P<cs>.*?)","(.*?)"\);'
+
+    cnt = 0
+    
+    for m in re.finditer(regex, result, re.DOTALL):
+    
+        url = 'https://www.onlinetvrecorder.com/v2/ajax/get_decoding_history.php'
+        params = {u'c': m.group('c').replace('=','') , u't': m.group('t') , u'x': m.group('x') , u'cs': m.group('cs')}
+
+        table = getDecoding(url, params, cookiePath)       
+        regex = '<td.id="userhistorydecoding_decoding_tracking.*?>(?P<title>.*?)<'
+ 
+        for m in re.finditer(regex, table, re.DOTALL):
+            data = m.group('title')
+            srch = time.strftime(' %y.')
+            pos = data.find(srch)
+            
+            if(pos > 0):
+                x = ItemClass()
+                x.thumb = 'DefaultVideo.png'
+
+                x.title = data
+                x.search = data[:pos].strip()
+
+                itemlist.append(x)
+
+        cnt = cnt + 1
+        if(cnt == 2):
+            return itemlist
+        
+    return itemlist

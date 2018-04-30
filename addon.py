@@ -116,6 +116,7 @@ def mainSelector():
 
     addPictureItem(__addon.getLocalizedString(30030), _url + '?actual=0', 'DefaultFolder.png')    # highlights
     addPictureItem(__addon.getLocalizedString(30034), _url + '?records=all', 'DefaultFolder.png') # meine aufnahmen
+    addPictureItem(__addon.getLocalizedString(30039), _url + '?decode=all', 'DefaultFolder.png')  # meine dekodings
     addPictureItem(__addon.getLocalizedString(30035), _url + '?toplist=all', 'DefaultFolder.png') # top listen
 
     addPictureItem(__addon.getLocalizedString(30032), _url + '?genres=all', 'DefaultFolder.png')  # genres
@@ -578,6 +579,25 @@ def showToplist(no, page):
 
     xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
     xbmcplugin.endOfDirectory(_handle)
+    
+def showDecode():
+
+    xbmcplugin.setContent(_handle, 'files')
+
+    # user data
+    login = xbmcplugin.getSetting(_handle, 'email')
+    password = xbmcplugin.getSetting(_handle, 'pass')
+
+    decList = website.getDecode(login, password, __cookiePath)
+    for aItem in decList:
+      
+        title = aItem.title
+        thumb = aItem.thumb
+
+        addPictureItem(title, _url + '?search=%s' % aItem.search + '&page=1' , thumb)
+
+    xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
+    xbmcplugin.endOfDirectory(_handle)
 
  # --------------  helper -------------------
 
@@ -655,6 +675,7 @@ try:
 
     # check login
     check = website.checkCookie(__cookiePath)
+    
     if(not check):
         xbmcgui.Dialog().notification(__addonname, __addon.getLocalizedString(30100), time=3000)
 
@@ -694,11 +715,13 @@ try:
             showRecords('1')
         else:
             showRecords(PARAMS['records'][0])
+    elif PARAMS.has_key('decode'):
+        showDecode()
     elif PARAMS.has_key('toplist'):
         if (PARAMS['toplist'][0] == 'all'):
             toplistSelector()
         else:
-            showToplist( PARAMS['toplist'][0], PARAMS['page'][0])
+            showToplist(PARAMS['toplist'][0], PARAMS['page'][0])
     elif PARAMS.has_key('main'):
         mainSelector()
     elif PARAMS.has_key('epg'):
