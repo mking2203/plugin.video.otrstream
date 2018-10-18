@@ -24,17 +24,6 @@
 #    along with otrstream.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-REMOTE_DBG = False
-if REMOTE_DBG:
-  try:
-    import pysrc.pydevd as pydevd
-    pydevd.settrace('localhost', port=5678, stdoutToServer=True, stderrToServer=True)
-  except ImportError:
-    sys.stderr.write("Error: You must add org.python.pydev.debug.pysrc to your PYTHONPATH.")
-    sys.exit(1)
-
-
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 import xbmcvfs
 import sys, urlparse, os
@@ -411,7 +400,7 @@ def searchStation():
             #addPictureItem(__addon.getLocalizedString(30020), _url + '?station=' + station + '&page=2&keyword=' + keyword, 'DefaultFolder.png')
 
             de = xbmcplugin.getSetting(_handle, 'searchDE')== "true"
-            hList = website.searchStation(login,password, __cookiePath, keyword, station, date, '1', de)
+            hList = website.searchStation(login,password, __cookiePath, keyword, station, date, '1')
 
             for aItem in hList:
                 id = aItem.id
@@ -579,7 +568,7 @@ def showToplist(no, page):
 
     xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
     xbmcplugin.endOfDirectory(_handle)
-    
+
 def showDecode():
 
     xbmcplugin.setContent(_handle, 'files')
@@ -590,7 +579,7 @@ def showDecode():
 
     decList = website.getDecode(login, password, __cookiePath)
     for aItem in decList:
-      
+
         title = aItem.title
         thumb = aItem.thumb
 
@@ -675,7 +664,7 @@ try:
 
     # check login
     check = website.checkCookie(__cookiePath)
-    
+
     if(not check):
         xbmcgui.Dialog().notification(__addonname, __addon.getLocalizedString(30100), time=3000)
 
