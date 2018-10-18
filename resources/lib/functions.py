@@ -11,7 +11,7 @@ def getHTML(user, pw, link):
     br = mechanize.Browser()
     br.set_handle_robots(False)
 
-    br.open("http://www.onlinetvrecorder.com/v2/?go=home")
+    br.open("https://www.onlinetvrecorder.com/v2/?go=home")
 
     # login
     br.select_form('fhomelogin')
@@ -19,19 +19,19 @@ def getHTML(user, pw, link):
     br['email'] = user
     br['password'] = pw
     br.submit().read()
-    
+
     response = br.open(link)
-    result = response.read()    
-    
-    return result 
-    
+    result = response.read()
+
+    return result
+
 def getPostHTML(user, pw, link):
 
     # init browser
     br = mechanize.Browser()
     br.set_handle_robots(False)
 
-    br.open("http://www.onlinetvrecorder.com/v2/?go=home")
+    br.open("https://www.onlinetvrecorder.com/v2/?go=home")
 
     # login
     br.select_form('fhomelogin')
@@ -39,58 +39,58 @@ def getPostHTML(user, pw, link):
     br['email'] = user
     br['password'] = pw
     br.submit().read()
-    
+
     response = br.open(link)
-    result = response.read()    
-    
-    return result 
+    result = response.read()
+
+    return result
 
 def scanList(data):
-    
+
     itemlist = []
-    
+
     soup = BeautifulSoup(data.decode('utf-8', 'ignore'))
     content = soup.findAll ('tr', id=lambda x: x and x.startswith('serchrow'))
 
     for c in content:
-    
+
         x = ItemClass()
-    
+
         inp = c.find('input', { 'type' : 'hidden'})
         x.id = inp['value']
-    
+
         title = c.find('p' , id=lambda x: x and x.startswith('ptitleandtext'))
         x.title = title.find(text=True).strip()
         #new 05.07.
         if (len(x.title) == 0):
             title = c.find('a')
             x.title = title.text
-    
+
         desc = c.find('span' , id=lambda x: x and x.startswith('spanlongtext'))
         x.desc = desc.text
-    
-        x.thumb = 'DefaultVideo.png' 
-    
+
+        x.thumb = 'DefaultVideo.png'
+
         pict = c.find('td' , id=lambda x: x and x.startswith('listimagetd'))
         pic = pict.find('img')
         if not (pic is None):
             x.thumb = pic['src']
-    
+
         genre = c.find('p' , style=lambda x: x and x.startswith('text-transform:capitalize'))
         x.genre = genre.text
-    
+
         data = c.findAll('td' , oncontextmenu=lambda x: x and x.startswith('showNewTabMenu'))
         start = ''
         stop = ''
-        
+
         x.serie = ''
         x.episode = ''
         x.date = ''
         x.time = ''
-    
+
         for d in data:
             tmp = d.text
-        
+
             if len(tmp) == 3:
                 if(tmp[0] == 'S'):
                     ser = tmp[1:]
@@ -108,19 +108,19 @@ def scanList(data):
                     x.time = tmp
                 else:
                     stop = tmp
-       
+
         itemlist.append(x)
-    
+
     return itemlist
 
 def getSearchString(keyword, page):
-    
+
     keyword = keyword.replace(' ','+')
-    
+
     iPage = int(page)
     x = (iPage-1) * 20
-    
-    s = 'http://www.onlinetvrecorder.com/v2/?go=list'
+
+    s = 'https://www.onlinetvrecorder.com/v2/?go=list'
    #s += '&tab=search'
     s += '&station='
     s += '&date=all'
@@ -128,7 +128,7 @@ def getSearchString(keyword, page):
 
     'not a nice solution, during changeover of a year'
     s += '&year=' + str(date.today().year)
-    
+
     s += '&fd=1'
     s += '&fm=1'
     s += '&td=31'
@@ -164,22 +164,22 @@ def getSearchString(keyword, page):
     s += '&filestate='
     #s += '&_view=table'
     s += '&start=' + str(x)
-    
+
     return s
-    
+
 def getGroupString(group, page):
-    
+
     iPage = int(page)
     x = (iPage-1) * 20
-    
-    s = 'http://www.onlinetvrecorder.com/v2/?go=list&tab=search'
+
+    s = 'https://www.onlinetvrecorder.com/v2/?go=list&tab=search'
     s += '&station='
     s += '&date=all'
     s += '&min_start_date=0'
-  
+
     'not a nice solution, during changeover of a year'
     s += '&year=' + str(date.today().year)
-    
+
     s += '&fd=1'
     s += '&fm=1'
     s += '&td=31'
@@ -215,15 +215,15 @@ def getGroupString(group, page):
     s += '&filestate='
     s += '&_view=table'
     s += '&start=' + str(x)
-    
+
     return s
 
 def getSearchStationString(keyword, station, date, page):
-    
+
     iPage = int(page)
     x = (iPage-1) * 20
- 
-    s = 'http://www.onlinetvrecorder.com/v2/?go=list&tab=search'
+
+    s = 'https://www.onlinetvrecorder.com/v2/?go=list&tab=search'
     s += '&order=beginn%20DESC' # neueste zuerst
     s += '&preset='
     s += '&epg_id='
@@ -265,7 +265,7 @@ def getSearchStationString(keyword, station, date, page):
 
     'not a nice solution, during changeover of a year'
     s += '&year=' + str(date.today().year)
-    
+
     s += '&productionyear='
     s += '&selected_filter_productionyear='
     s += '&format=mp4,mcut,avi,hq,hcut,' # stream format
@@ -288,5 +288,5 @@ def getSearchStationString(keyword, station, date, page):
     s += '&btn_ok=+Suchen+'
     s += '&programm=0'
     s += '&multioption='
-    
+
     return s
