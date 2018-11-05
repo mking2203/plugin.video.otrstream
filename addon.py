@@ -60,6 +60,7 @@ __icon = __addon.getAddonInfo('icon')
 
 __addonpath = __addon.getAddonInfo('path').decode("utf-8")
 __debug = __addon.getSetting('debug') == "true"
+__view = __addon.getSetting('view') == "true"
 
 __profilePath = xbmc.translatePath(__addon.getAddonInfo('profile')).decode("utf-8")
 if not xbmcvfs.exists(__profilePath): xbmcvfs.mkdirs(__profilePath)
@@ -127,7 +128,8 @@ def mainSelector():
     addPictureItem(__addon.getLocalizedString(30033), _url + '?credit=now', 'DefaultFolder.png')  # benutzer info
     addPictureItem('EPG', _url + '?epg=today', 'DefaultFolder.png')  #epg
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
     xbmcplugin.endOfDirectory(_handle)
 
 def genresSelector():
@@ -151,7 +153,8 @@ def genresSelector():
 
     addPictureItem(__addon.getLocalizedString(30071), _url + '?search=group10&page=1', 'DefaultFolder.png') # Erotic
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
     xbmcplugin.endOfDirectory(_handle)
 
 def toplistSelector():
@@ -173,7 +176,8 @@ def toplistSelector():
     addPictureItem(__addon.getLocalizedString(30092), _url + '?toplist=3&page=1', 'DefaultFolder.png') # meine Liste 3
     addPictureItem(__addon.getLocalizedString(30093), _url + '?toplist=4&page=1', 'DefaultFolder.png') # meine Liste 4
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
     xbmcplugin.endOfDirectory(_handle)
 
 def showSelector(page):
@@ -209,7 +213,8 @@ def showSelector(page):
         thumb = aItem.thumb
         addPictureItem2(title, _url + '?categories=%s' % url + '&title=%s' % title , thumb, desc)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView2)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView2)
     xbmcplugin.endOfDirectory(_handle)
 
 def showCategory(epg_id, iTitle):
@@ -253,7 +258,8 @@ def showCategory(epg_id, iTitle):
 
             addPictureItem2s(aItem.title + " / " + price, url, thumb, aItem.desc, aItem.stars)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView2)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView2)
     xbmcplugin.endOfDirectory(_handle)
 
 def showScreenshot(epg_id):
@@ -273,7 +279,8 @@ def showScreenshot(epg_id):
         for aItem in mList:
             addPictureItem(aItem.title, '', aItem.url)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % Shift)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % Shift)
     xbmcplugin.endOfDirectory(_handle)
 
 def showMovie(eid, rid, mode):
@@ -357,7 +364,8 @@ def search():
 
                 addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
 
-            xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+            if(__view):
+                xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
 
             xbmcplugin.endOfDirectory(_handle)
 
@@ -413,7 +421,8 @@ def searchStation():
 
                 addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
 
-            xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+            if(__view):
+                xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
 
             xbmcplugin.endOfDirectory(_handle)
 
@@ -453,7 +462,8 @@ def searchPage(keyword, page, station=None):
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
     xbmcplugin.endOfDirectory(_handle)
 
 def searchGroup(group , page):
@@ -492,7 +502,8 @@ def searchGroup(group , page):
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
     xbmcplugin.endOfDirectory(_handle)
 
 def showRecords(page):
@@ -529,7 +540,8 @@ def showRecords(page):
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
     xbmcplugin.endOfDirectory(_handle)
 
 def showToplist(no, page):
@@ -566,7 +578,8 @@ def showToplist(no, page):
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
     xbmcplugin.endOfDirectory(_handle)
 
 def showDecode():
@@ -585,7 +598,8 @@ def showDecode():
 
         addPictureItem(title, _url + '?search=%s' % aItem.search + '&page=1' , thumb)
 
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
+    if(__view):
+        xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
     xbmcplugin.endOfDirectory(_handle)
 
  # --------------  helper -------------------
