@@ -194,7 +194,7 @@ def showSelector(page):
     iPage = int(page)
 
     if(iPage < 2):
-        hList = website.getData(login, password, __cookiePath)
+        hList = website.getMoreData(login, password, __cookiePath, 0)
 
         addPictureItem(__addon.getLocalizedString(30020), _url + '?actual=2', 'DefaultFolder.png')
 

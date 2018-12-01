@@ -146,7 +146,7 @@ def getMoreData(user, pw, cookiePath, page):
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
 
-    select = 0
+    select = -1
 
     if(page == 2):
         select = 14
@@ -201,7 +201,7 @@ def getAlternateHTML(cookiePath, link):
     cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
 
     resp = requests.post(link, None, None, cookies=cj, timeout=30)
-    
+
     return resp.text
 
 def getPostHTML(user, pw, cookiePath, link):
@@ -636,20 +636,20 @@ def getDecode(user, pw, cookiePath):
     regex = 'loadDecodingTable\("(?P<c>.*?)","(?P<t>.*?)","(?P<x>.*?)","(.*?)","(?P<cs>.*?)","(.*?)"\);'
 
     cnt = 0
-    
+
     for m in re.finditer(regex, result, re.DOTALL):
-    
+
         url = 'https://www.onlinetvrecorder.com/v2/ajax/get_decoding_history.php'
         params = {u'c': m.group('c').replace('=','') , u't': m.group('t') , u'x': m.group('x') , u'cs': m.group('cs')}
 
-        table = getDecoding(url, params, cookiePath)       
+        table = getDecoding(url, params, cookiePath)
         regex = '<td.id="userhistorydecoding_decoding_tracking.*?>(?P<title>.*?)<'
- 
+
         for m in re.finditer(regex, table, re.DOTALL):
             data = m.group('title')
             srch = time.strftime(' %y.')
             pos = data.find(srch)
-            
+
             if(pos > 0):
                 x = ItemClass()
                 x.thumb = 'DefaultVideo.png'
@@ -662,5 +662,5 @@ def getDecode(user, pw, cookiePath):
         cnt = cnt + 1
         if(cnt == 2):
             return itemlist
-        
+
     return itemlist
