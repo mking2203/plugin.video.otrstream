@@ -206,16 +206,29 @@ def getAlternateHTML(cookiePath, link):
 
 def getPostHTML(user, pw, cookiePath, link):
 
+    cj = cookielib.LWPCookieJar()
+    cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
+
     result = None
 
     try:
-        request = mechanize.Request(link)
+        request = mechanize.Request(link, None, None, cookies=cj, timeout=30)
         response = mechanize.urlopen(request)
         result = response.read()
     except:
         pass
 
     return result
+
+def getOnlineMovie(cookiePath, link, wid , cs ):
+
+    cj = cookielib.LWPCookieJar()
+    cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
+
+    data = {'wid': wid, 'cs': cs,}
+
+    resp = requests.post(link, data=data, cookies=cj, timeout=30)
+    return resp.text
 
 def scanData(html):
 
@@ -664,3 +677,8 @@ def getDecode(user, pw, cookiePath):
             return itemlist
 
     return itemlist
+
+def getPage(user, pw, cookiePath, URL):
+
+    result = getHTML(user, pw, cookiePath, URL)
+    return result

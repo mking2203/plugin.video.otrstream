@@ -36,6 +36,7 @@ import buggalo
 import mechanize
 import HTMLParser
 from datetime import datetime
+from BeautifulSoup import BeautifulSoup
 
 
 CommonRootView = 50
@@ -88,7 +89,7 @@ def showCredit():
     data = website.login(login, password, __cookiePath)
 
     # to do checks
-    if(data.state == 'premium'):
+    if(data.state == 'Premium'):
         xbmcgui.Dialog().ok('otrstream', __addon.getLocalizedString(30040) + ' ' + xbmcplugin.getSetting(_handle, 'email') ,
                                         __addon.getLocalizedString(30041) +  ' ' + data.state + ' - ' + data.decode,
                                         __addon.getLocalizedString(30042) + ' ' + data.value)
@@ -105,6 +106,21 @@ def mainSelector():
     xbmcplugin.setContent(_handle, 'files')
 
     addPictureItem(__addon.getLocalizedString(30030), _url + '?actual=0', 'DefaultFolder.png')    # highlights
+
+    # check for premium
+    login = xbmcplugin.getSetting(_handle, 'email')
+    password = xbmcplugin.getSetting(_handle, 'pass')
+
+    data = website.login(login, password, __cookiePath)
+    xbmc.log('OTR ' + data.state , xbmc.LOGNOTICE)
+
+    if(data.state == 'Premium'):
+
+        #start URL
+        link = 'https://www.onlinetvrecorder.com/v2/watchlist/choose.php?genre=Comedy'
+        link = urllib.quote_plus(link)
+        addPictureItem(__addon.getLocalizedString(30045), _url + '?online=nav&url=' + link, 'DefaultFolder.png')  # online
+
     addPictureItem(__addon.getLocalizedString(30034), _url + '?records=all', 'DefaultFolder.png') # meine aufnahmen
     addPictureItem(__addon.getLocalizedString(30039), _url + '?decode=all', 'DefaultFolder.png')  # meine dekodings
     addPictureItem(__addon.getLocalizedString(30035), _url + '?toplist=all', 'DefaultFolder.png') # top listen
@@ -604,13 +620,190 @@ def showDecode():
 
  # --------------  helper -------------------
 
+def showOnline(mode, url):
+
+    # user data
+    login = xbmcplugin.getSetting(_handle, 'email')
+    password = xbmcplugin.getSetting(_handle, 'pass')
+
+    if((mode == 'nav') | (mode == 'season')):
+
+        xbmcplugin.setContent(_handle, 'files')
+
+        page = website.getPage(login, password, __cookiePath, url)
+        soup = BeautifulSoup(page)
+
+        table = soup.find('td' , {'class' : 'nav'} )
+        strHtml = str(table)
+
+        regex = '<a.href=\"(.*?)\".*?>(.*?)<'
+        for m in re.finditer(regex, strHtml, re.DOTALL):
+            link =  m.group(1).strip()
+            name =  m.group(2).strip()
+
+            if(mode == 'nav'):
+                link = urllib.quote_plus('https://www.onlinetvrecorder.com/v2/watchlist/choose.php' + link)
+                addPictureItem(name, _url + '?online=group&url=' + link, 'DefaultFolder.png') # group
+            else:
+                link = urllib.quote_plus('https://www.onlinetvrecorder.com/v2/watchlist/watch.php' + link)
+                addPictureItem(name, _url + '?online=episode&url=' + link, 'DefaultFolder.png') # group
+
+            if(__view):
+                xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
+        xbmcplugin.endOfDirectory(_handle)
+
+    elif (mode == 'group'):
+
+        xbmcplugin.setContent(_handle, 'movies')
+
+        page = website.getPage(login, password, __cookiePath, url)
+        soup = BeautifulSoup(page)
+
+        tables = soup.findAll('td' , {'class' : 'wsite-multicol-col'} )
+
+        for table in tables:
+
+            strHtml = str(table)
+
+            regex = '<a.href=\"(.*?)\"'
+            m = re.search(regex, strHtml)
+            link = 'https://www.onlinetvrecorder.com/v2/watchlist/' + m.group(1)
+            link = urllib.quote_plus(link)
+
+            regex = '<h2.*?<font.*?>(.*?)<'
+            m = re.search(regex, strHtml, re.DOTALL)
+            title = m.group(1).strip()
+
+            regex = 'background-image:url\((.*?)\)'
+            m = re.search(regex, strHtml, re.DOTALL)
+            img = m.group(1)
+
+            addPictureItem(title, _url + '?online=season&url=' + link, img) # episode
+
+            if(__view):
+                xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+        xbmcplugin.endOfDirectory(_handle)
+
+    elif (mode == 'episode'):
+
+        xbmcplugin.setContent(_handle, 'movies')
+
+        page = website.getPage(login, password, __cookiePath, url)
+        soup = BeautifulSoup(page)
+
+        tables = soup.findAll('td' , {'class' : 'wsite-multicol-col'} )
+
+        for table in tables:
+
+            strHtml = str(table)
+
+            regex = '<a.href=\"(.*?)\"'
+            m = re.search(regex, strHtml)
+            link = 'https://www.onlinetvrecorder.com/v2/watchlist/watch.php' + m.group(1)
+            link = urllib.quote_plus(link)
+
+            regex = '<h2.*?<font.*?>(.*?)<'
+            m = re.search(regex, strHtml, re.DOTALL)
+            title = m.group(1).strip()
+
+            regex = 'background-image:url\((.*?)\)'
+            m = re.search(regex, strHtml, re.DOTALL)
+            img = m.group(1)
+
+            addPictureItem(title, _url + '?online=detail&url=' + link, img) # movie
+
+            if(__view):
+                xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+        xbmcplugin.endOfDirectory(_handle)
+
+    elif (mode == 'detail'):
+
+        xbmcplugin.setContent(_handle, 'movies')
+
+        page = website.getPage(login, password, __cookiePath, url)
+        soup = BeautifulSoup(page.decode('utf-8', 'ignore'))
+
+        # image
+        img = 'DefaultVideo.png'
+        regex = 'background:.url\((.*?)\)'
+        m = re.search(regex, page, re.DOTALL)
+        if m is not None:
+            img = m.group(1)
+
+        table = soup.find('div' , {'id' : 'bannerright'} )
+        banner = str(table)
+
+        soup = BeautifulSoup(banner.decode('utf-8', 'ignore'))
+        table = soup.find('div' , {'class' : 'wsite-text wsite-headline-paragraph'} )
+        strHtml = str(table)
+
+        # desc / cost
+        cost = ''
+        desc = ''
+
+        regex = '<div.style.*?>(.*?)<.*?<\/div>(.*?)<\/div>'
+        m = re.search(regex, strHtml, re.DOTALL)
+        if m is not None:
+            cost = m.group(1).strip()
+            desc = m.group(2).strip()
+
+        # title
+        regex = '<span.class=\"wsite-text.wsite-headline\">(.*?)<'
+        m = re.search(regex, banner, re.DOTALL)
+        title = m.group(1).strip()
+
+        # url (same)
+        url = urllib.quote_plus(url)
+
+        addMovieItemExt(title, _url + '?online=movie&url=' + url, img, cost + '\n' + desc) # movie
+
+        if(__view):
+            xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
+        xbmcplugin.endOfDirectory(_handle)
+
+    elif (mode == 'movie'):
+        # play movie
+        xbmcplugin.setContent(_handle, 'movies')
+
+        add = xbmcaddon.Addon('plugin.video.otrstream')
+        warn = add.getSetting('warning')== "true"
+
+        # continue ok
+        ok = True
+
+        if(warn):
+            ok = False
+            ok = xbmcgui.Dialog().yesno('otrstream', __addon.getLocalizedString(30014), __addon.getLocalizedString(30015) )
+
+        if(ok or (not warn)):
+
+            page = website.getPage(login, password, __cookiePath, url)
+
+            # get parameters
+            regex = 'getSeriesWatchlistPlayer\(\'(.*?)\',\'(.*?)\''
+            m = re.search(regex, page)
+
+            if m is not None:
+                # query values
+                link = 'https://www.onlinetvrecorder.com/v2/ajax/get_series_watchlist_player.php'
+                page = website.getOnlineMovie( __cookiePath, link, m.group(1), m.group(2))
+
+                # now find source
+                regex = '<source.src=\"(.*?)\"'
+                m = re.search(regex, page)
+
+                if m is not None:
+                    listitem =xbmcgui.ListItem ('Movie')
+                    listitem.setInfo('video', {'Title': 'Movie' })
+                    xbmc.Player().play(m.group(1), listitem)
+
 def addPictureItem(title, url, thumb):
 
     list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
-                      'fanart': thumb})
+                      'poster': thumb})
 
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
 
@@ -624,7 +817,7 @@ def addPictureItem2(title, url, thumb, desc):
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
-                      'fanart': thumb})
+                      'poster': thumb})
 
     list_item.setInfo('video', { 'plot': desc })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -639,7 +832,7 @@ def addPictureItem2s(title, url, thumb, desc, stars):
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
-                      'fanart': thumb})
+                      'poster': thumb})
 
     list_item.setInfo('video', { 'plot': desc , 'rating': float(stars * 2) })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -653,7 +846,7 @@ def addPictureItem3(title, url, thumb, desc, genre):
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
-                      'fanart': thumb})
+                      'poster': thumb})
 
     list_item.setInfo('video', { 'plot': desc, 'genre': genre })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -664,8 +857,19 @@ def addMovieItem(title, url, thumb):
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
-                      'fanart': thumb})
+                      'poster': thumb})
 
+    xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
+
+def addMovieItemExt(title, url, thumb, desc):
+
+    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+
+    list_item.setArt({'thumb': thumb,
+                      'icon': thumb,
+                      'poster': thumb})
+
+    list_item.setInfo('video', { 'plot': desc })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
 
 #### main entry point ####
@@ -692,6 +896,8 @@ try:
         showCategory(PARAMS['categories'][0], PARAMS['title'][0])
     elif PARAMS.has_key('movie'):
         showMovie(PARAMS['eid'][0], PARAMS['rid'][0], PARAMS['movie'][0])
+    elif PARAMS.has_key('online'):
+        showOnline(PARAMS['online'][0], PARAMS['url'][0])
     elif PARAMS.has_key('screenshot'):
         showScreenshot(PARAMS['screenshot'][0])
     elif PARAMS.has_key('preview'):
