@@ -206,13 +206,10 @@ def getAlternateHTML(cookiePath, link):
 
 def getPostHTML(user, pw, cookiePath, link):
 
-    cj = cookielib.LWPCookieJar()
-    cj.load(cookiePath, ignore_discard=True, ignore_expires=True)
-
     result = None
 
     try:
-        request = mechanize.Request(link, None, None, cookies=cj, timeout=30)
+        request = mechanize.Request(link, timeout=30)
         response = mechanize.urlopen(request)
         result = response.read()
     except:
@@ -544,6 +541,9 @@ def searchStation(user, pw, cookiePath, keyword, station, date, page):
     link = searchStrings.getSearchStationString(keyword, station, date, page)
     data = getPostHTML(user, pw, cookiePath, link)
 
+    if data is None:
+        data = ''
+
     # now parse
     return scanList(data)
 
@@ -551,6 +551,9 @@ def searchGroup(user, pw, cookiePath, group, page):
 
     link = searchStrings.getGroupString(group, page)
     data = getPostHTML(user, pw, cookiePath, link)
+
+    if data is None:
+        data = ''
 
     # now parse
     return scanList(data)
