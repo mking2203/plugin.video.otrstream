@@ -116,13 +116,12 @@ def getRecordsString(page):
     s = 'https://www.onlinetvrecorder.com/v2/?go=list&tab=search&preset=5'
 
     s += '&order=beginn+DESC' # neueste zuerst
-    s += '&=preset'
-    s += '&epg_id'
+    s += '&epg_id='
     s += '&start=' + str(x)
-    s += '&view'
-    s += '&state'
-    s += '&title'
-    s += '&date=sinceregister'
+    s += '&view='
+    s += '&state='
+    s += '&title='
+    s += '&date=all'
     s += '&source=my' # suche nur records
     s += '&intimefrom=0'
     s += '&intimeto=23'
@@ -130,7 +129,7 @@ def getRecordsString(page):
     s += '&fm=1'
     s += '&td=31'
     s += '&tm=12'
-    s += '&genre=0'
+    s += '&genre='
     s += '&weekday'
     s += '&selected_filter_weekday'
     s += '&times'
@@ -157,7 +156,7 @@ def getRecordsString(page):
     s += '&episode='
     s += '&selected_filter_episode'
     s += '&rating'
-    s += '&selected_filter_rating=0'
+    s += '&selected_filter_rating='
     s += '&fsk='
     s += '&selected_filter_fsk'
     s += '&actor'

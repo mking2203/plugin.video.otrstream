@@ -14,6 +14,8 @@ import searchStrings
 import xbmc
 import requests
 
+_timeout = 60.0
+
 class ItemClass(object):
     pass
 
@@ -190,7 +192,7 @@ def getHTML(user, pw, cookiePath, link):
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
 
-    response = br.open(link, timeout=30)
+    response = br.open(link, timeout=_timeout)
     result = response.read()
 
     return result
@@ -209,7 +211,7 @@ def getPostHTML(user, pw, cookiePath, link):
     result = None
 
     try:
-        request = mechanize.Request(link, timeout=30)
+        request = mechanize.Request(link, timeout=_timeout)
         response = mechanize.urlopen(request)
         result = response.read()
     except:
@@ -224,7 +226,7 @@ def getOnlineMovie(cookiePath, link, wid , cs ):
 
     data = {'wid': wid, 'cs': cs,}
 
-    resp = requests.post(link, data=data, cookies=cj, timeout=30)
+    resp = requests.post(link, data=data, cookies=cj, timeout=_timeout)
     return resp.text
 
 def scanData(html):
