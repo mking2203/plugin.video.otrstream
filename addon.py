@@ -32,7 +32,9 @@ import time
 import urllib, urllib2
 
 import re
+
 import buggalo
+
 import mechanize
 import HTMLParser
 from datetime import datetime
@@ -254,7 +256,6 @@ def showCategory(epg_id, iTitle):
         price = aItem.price
         thumb = aItem.thumb
 
-        print title
         if(title == 'Preview'):
             addPictureItem2s(title, _url + '?preview=%s' % url + '&title=%s' % iTitle, thumb, aItem.desc, aItem.stars)
         elif(title == 'prev'):
