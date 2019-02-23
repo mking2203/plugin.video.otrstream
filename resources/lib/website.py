@@ -59,7 +59,19 @@ def login(user, pw, cookiePath):
     br['email'] = user
     br['password'] = pw
 
-    result = br.submit().read()
+    # result = br.submit().read()
+
+    # change 02/19
+    # not working since the base url is wrong...
+
+    loginURL = "https://www.onlinetvrecorder.com/v2/?go=login"
+    params = {u'email': user,
+              u'password': pw,
+              u'rememberlogin' : '1',
+              u'btn_login' :'+Anmelden+'}
+    data = urllib.urlencode(params)
+    response =br.open(loginURL,data)
+    result = response.read()
 
     em = ''
     pw = ''
@@ -286,8 +298,11 @@ def scanData(html):
         x.url = link['href']
 
         # we just want the id
-        s = x.url.index('id=')
-        x.url = x.url[s+3:]
+        # s = x.url.index('id=')
+        # x.url = x.url[s+3:]
+
+        # change 02/19
+        x.url = x.url.replace('download/','')
 
         title = c.find('div' , {'class' : 'toolbardiv'} )
         x.title = title.text
