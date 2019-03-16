@@ -263,15 +263,12 @@ def showCategory(epg_id, iTitle):
         elif(title == 'next'):
             addPictureItem2s(__addon.getLocalizedString(30026), _url + '?categories=%s' % url + '&title=%s' % title, thumb, '', 0)
         else:
-            para = url
-            para = para.replace('"','')
-            data = para.split(',')
 
-            eid = data[0]
-            rid = data[1]
-            mode = data[2]
+            rid = aItem.rid
+            cs = aItem.cs
+            mode = 'play'
 
-            url = _url + '?movie=%s' %  mode + '&eid=%s' %  eid + '&rid=%s' %  rid
+            url = _url + '?movie=%s' %  mode + '&rid=%s' %  rid + '&cs=%s' %  cs
 
             addPictureItem2s(aItem.title + " / " + price, url, thumb, aItem.desc, aItem.stars)
 
@@ -300,7 +297,7 @@ def showScreenshot(epg_id):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % Shift)
     xbmcplugin.endOfDirectory(_handle)
 
-def showMovie(eid, rid, mode):
+def showMovie(cs, rid):
 
     add = xbmcaddon.Addon('plugin.video.otrstream')
 
@@ -315,12 +312,9 @@ def showMovie(eid, rid, mode):
         ok = False
         ok = xbmcgui.Dialog().yesno('otrstream', __addon.getLocalizedString(30014), __addon.getLocalizedString(30015) )
 
-    if(ok or (not warn)):
-        link = website.getPlayLink(user, pw, __cookiePath, eid, rid, mode)
-        if(not link.startswith('http')):
-            link = 'https:' + link
-    else:
-        link = None
+
+    link = website.getPlayLink(user,pw,__cookiePath,cs,rid)
+
 
     if link is not None:
         if not (link.startswith('ERROR')):
@@ -896,7 +890,7 @@ try:
     if PARAMS.has_key('categories'):
         showCategory(PARAMS['categories'][0], PARAMS['title'][0])
     elif PARAMS.has_key('movie'):
-        showMovie(PARAMS['eid'][0], PARAMS['rid'][0], PARAMS['movie'][0])
+        showMovie(PARAMS['cs'][0], PARAMS['rid'][0])
     elif PARAMS.has_key('online'):
         showOnline(PARAMS['online'][0], PARAMS['url'][0])
     elif PARAMS.has_key('screenshot'):
