@@ -160,12 +160,9 @@ def getMoreData(user, pw, cookiePath, page):
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
 
-    select = -1
-
-    if(page == 2):
-        select = 14
-    if(page > 2):
-        select = (15 * (page-1)) - 1
+    select = -2
+    if(page > 1):
+        select = 12 + (15 * (page-2))
 
     params = {u'language': 'de', u'start': str(select)}
     data = urllib.urlencode(params)
@@ -502,7 +499,7 @@ def getMovies(user, pw, cookiePath, epg_id):
                 cs = btn['data-cs']
                 price = n.find('div' , {'class' : 'Cell rightalign width75'})
                 if price is not None:
-                    cost = price.text.replace('&euro','Euro')
+                    cost = price.text.replace('&euro;','Euro')
 
                     x = ItemClass()
 
