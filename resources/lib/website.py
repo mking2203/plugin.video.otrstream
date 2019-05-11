@@ -504,8 +504,8 @@ def getMovies(user, pw, cookiePath, epg_id):
                     x = ItemClass()
 
                     x.url = 'movie'
-                    x.title = title
-                    x.price = ty + ' - ' + cost
+                    x.title = 'Stream ' + ty.upper()
+                    x.price = cost
                     x.thumb = thumb
                     x.desc = title + '\n' + desc
                     x.stars = stars
@@ -638,6 +638,8 @@ def getPlayLink(user, pw, cookiePath, cs, rid):
 
 def getDecode(user, pw, cookiePath):
 
+    xbmc.log('otr : getDecode')
+
     itemlist = []
 
     link = 'https://www.onlinetvrecorder.com/v2/?go=history&tab=decodings'
@@ -650,6 +652,8 @@ def getDecode(user, pw, cookiePath):
 
     for m in re.finditer(regex, result, re.DOTALL):
 
+        xbmc.log('otr : table cs=' + m.group('cs'))
+
         url = 'https://www.onlinetvrecorder.com/v2/ajax/get_decoding_history.php'
         params = {u'c': m.group('c').replace('=','') , u't': m.group('t') , u'x': m.group('x') , u'cs': m.group('cs')}
 
@@ -657,8 +661,11 @@ def getDecode(user, pw, cookiePath):
         regex = '<td.id="userhistorydecoding_decoding_tracking.*?>(?P<title>.*?)<'
 
         for m in re.finditer(regex, table, re.DOTALL):
+
+            xbmc.log('otr : title = ' + m.group('title'))
+
             data = m.group('title')
-            srch = time.strftime(' %y.')
+            srch = time.strftime('_%y.')
             pos = data.find(srch)
 
             if(pos > 0):
@@ -666,7 +673,7 @@ def getDecode(user, pw, cookiePath):
                 x.thumb = 'DefaultVideo.png'
 
                 x.title = data
-                x.search = data[:pos].strip()
+                x.search = data[:pos].strip().replace('_',' ')
 
                 itemlist.append(x)
 
