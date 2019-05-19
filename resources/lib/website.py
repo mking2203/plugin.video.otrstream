@@ -130,11 +130,11 @@ def login(user, pw, cookiePath):
             x.id = match.group('id')
             x.state = match.group('state').title()
 
-        match = re.search('<a.href=".?go=history&tab=decodings(.*?)<\/i>(?P<value>[^<]*)<', result)
+        match = re.search('<a.href="history.decodings".*?<div.*?>(?P<value>[^<]*)<', result, re.DOTALL)
         if(match != None):
             x.decode = match.group('value')
 
-        match = re.search('<div.id="cssmenuright">.*?<a.href=".go=points.*?>(?P<value>[^<]*)<', result, re.DOTALL)
+        match = re.search('<div.id="cssmenuright">.*?<a.href="points.*?>(?P<value>[^<]*)<', result, re.DOTALL)
         if(match != None):
             x.value = match.group('value')
 

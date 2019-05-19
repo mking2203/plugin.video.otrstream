@@ -1,3 +1,5 @@
+[B]Version 1.0.30 - 2019-05-19[/B]
+fix for my credit
 [B]Version 1.0.29 - 2019-05-11[/B]
 fix for my decodings
 change display of streams/price
