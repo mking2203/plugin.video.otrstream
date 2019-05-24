@@ -268,7 +268,7 @@ def showCategory(epg_id, iTitle):
             cs = aItem.cs
             mode = 'play'
 
-            url = _url + '?movie=%s' %  mode + '&rid=%s' %  rid + '&cs=%s' %  cs
+            url = _url + '?movie=%s' %  mode + '&rid=%s' %  rid + '&cs=%s' %  cs  + '&epg_id=%s' % epg_id
 
             addPictureItem2s(aItem.title + " / " + price, url, thumb, aItem.desc, aItem.stars)
 
@@ -297,7 +297,7 @@ def showScreenshot(epg_id):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % Shift)
     xbmcplugin.endOfDirectory(_handle)
 
-def showMovie(cs, rid):
+def showMovie(cs, rid, epg_id):
 
     add = xbmcaddon.Addon('plugin.video.otrstream')
 
@@ -312,18 +312,32 @@ def showMovie(cs, rid):
         ok = False
         ok = xbmcgui.Dialog().yesno('otrstream', __addon.getLocalizedString(30014), __addon.getLocalizedString(30015) )
 
+    if(ok):
+        link = website.getPlayLink(user,pw,__cookiePath,cs,rid)
 
-    link = website.getPlayLink(user,pw,__cookiePath,cs,rid)
+        if link is not None:
+            if not (link.startswith('ERROR')):
+                xbmc.log('- movie - ' + link)
+
+                title = ''
+                desc = ''
+                thumb = ''
+
+                mList = website.getMovieInfo(user, pw, __cookiePath, epg_id)
+                if  len(mList) == 1:
+                    title = mList[0].title
+                    desc = mList[0].desc
+                    thumb = mList[0].thumb
 
 
-    if link is not None:
-        if not (link.startswith('ERROR')):
-            xbmc.log('- movie - ' + link)
-            xbmc.Player().play(link)
+                txt = title + '\n' + desc
+                playitem = xbmcgui.ListItem(path=link, thumbnailImage=thumb)
+                playitem.setInfo('video', { 'plot': txt })
+                xbmc.Player().play(item=link, listitem=playitem)
+            else:
+                xbmc.executebuiltin('Notification(Free-Stream,' + link + ', 3000)')
         else:
-            xbmc.executebuiltin('Notification(Free-Stream,' + link + ', 3000)')
-    else:
-        xbmc.log('- movie - not found')
+            xbmc.log('- movie - not found')
 
 def showPreview(url, title):
 
@@ -890,7 +904,7 @@ try:
     if PARAMS.has_key('categories'):
         showCategory(PARAMS['categories'][0], PARAMS['title'][0])
     elif PARAMS.has_key('movie'):
-        showMovie(PARAMS['cs'][0], PARAMS['rid'][0])
+        showMovie(PARAMS['cs'][0], PARAMS['rid'][0], PARAMS['epg_id'][0])
     elif PARAMS.has_key('online'):
         showOnline(PARAMS['online'][0], PARAMS['url'][0])
     elif PARAMS.has_key('screenshot'):

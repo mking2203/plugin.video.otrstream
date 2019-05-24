@@ -439,11 +439,9 @@ def getMovies(user, pw, cookiePath, epg_id):
     desc = '...'
     soup = BeautifulSoup(data)
 
-    m = soup.find('div' , {'class' : 'Cell epg_screen_infotext'})
+    m = soup.find('div' , {'class' : 'epg_screen_epgtext'})
     if m is not None:
-        x = m.text.rfind('>')
-        if(x>0):
-            desc = m.text[x+1:]
+        desc = m.text
 
     #get stars
     stars = 0
@@ -454,11 +452,7 @@ def getMovies(user, pw, cookiePath, epg_id):
     # search picture
     thumb = 'DefaultVideo.png'
 
-    match = re.search('<div.id="quickbigimage.*?src="(?P<thumb>[^"]*)"', result)
-    if(match != None):
-        thumb = match.group('thumb')
-
-    match = re.search('<div.id="quickbigimage.*?background-image:url.(?P<thumb>[^)]*)', result)
+    match = re.search('<div.class="epg_screen_bigimage".*?style="background-image:url."(?P<thumb>[^"]*)"', result)
     if(match != None):
         thumb = match.group('thumb')
 
@@ -548,6 +542,47 @@ def getMovies(user, pw, cookiePath, epg_id):
                 x.rid =''
 
                 itemlist.append(x)
+
+    return itemlist
+
+def getMovieInfo(user, pw, cookiePath, epg_id):
+
+    itemlist = []
+
+    # get HTML
+    link = 'https://www.onlinetvrecorder.com/v2/?go=download&epg_id=' + epg_id
+    data = getHTML(user, pw, cookiePath, link)
+
+    result = data.replace('\'','"')
+
+    # search the title & text
+    title = 'not available'
+
+    match = re.search('document.title="(.*?)"', result)
+    if(match is not None):
+        title = match.group(1)
+
+    desc = 'no desciption'
+    soup = BeautifulSoup(data)
+
+    m = soup.find('div' , {'class' : 'epg_screen_epgtext'})
+    if m is not None:
+        desc = m.text
+
+    # search picture
+    thumb = 'DefaultVideo.png'
+
+    match = re.search('<div.class="epg_screen_bigimage".*?style="background-image:url."(?P<thumb>[^"]*)"', result)
+    if(match != None):
+        thumb = match.group('thumb')
+
+    x = ItemClass()
+
+    x.title = title
+    x.thumb = thumb
+    x.desc = desc
+
+    itemlist.append(x)
 
     return itemlist
 
