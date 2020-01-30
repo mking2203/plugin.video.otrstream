@@ -107,7 +107,7 @@ def mainSelector():
 
     xbmcplugin.setContent(_handle, 'files')
 
-    addPictureItem(__addon.getLocalizedString(30030), _url + '?actual=0', 'DefaultFolder.png')    # highlights
+    addPictureItem(__addon.getLocalizedString(30030), _url + '?actual=1', 'DefaultFolder.png')    # highlights
 
     # check for premium
     login = xbmcplugin.getSetting(_handle, 'email')
@@ -212,7 +212,7 @@ def showSelector(page):
     iPage = int(page)
 
     if(iPage < 2):
-        hList = website.getMoreData(login, password, __cookiePath, 0)
+        hList = website.getMoreData(login, password, __cookiePath, 1)
 
         addPictureItem(__addon.getLocalizedString(30020), _url + '?actual=2', 'DefaultFolder.png')
 

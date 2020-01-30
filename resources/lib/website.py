@@ -160,17 +160,14 @@ def getMoreData(user, pw, cookiePath, page):
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
 
-    select = -2
-    if(page > 1):
-        select = 12 + (15 * (page-2))
-
-    params = {u'language': 'de', u'start': str(select)}
+    params = {u'p': page}
     data = urllib.urlencode(params)
 
-    response = br.open("https://www.onlinetvrecorder.com/v2/ajax/get_homethree.php",  data)
+    response = br.open("https://www.onlinetvrecorder.com/v2/ajax/home_next_highlights.php",  data)
     result = response.read()
 
     result = result.replace('\'','"')
+
     return scanData(result)
 
 def getDecoding(url, params, cookiePath):
@@ -255,40 +252,30 @@ def scanData(html):
 
     # search for highlights
 
-    tables = soup.findAll('div' , {'class' : 'content'} )
+    tables = soup.findAll('div' , {'class' : 'homehighlight'} )
 
-    for table in tables:
-        # check its the right table
-        taList = table.find('div' , {'class' : 'homedoublehighlight'})
-        if taList is not None:
+    s1 = '<div.class=homehighlight>.*?<a href="(.*?)".*?background-image:url\((.*?)\).*?homehighlight_title>(.*?)<.*?homehighlight_logo.*?<\/div>(.*?)<\/div>'
+    match = re.findall(s1,html,re.DOTALL)
 
-            x = ItemClass()
+    for m in match:
 
-            taList = table.find('td')
-            sStyle = taList['style'].encode()
+        x = ItemClass()
 
-            m = re.search('background-image:url\((?P<thumb>.*?)\)', sStyle)
-            if(m is not None):
-                x.thumb = m.group('thumb')
-            else:
-                x.thumb = 'DefaultVideo.png'
+        x.thumb = m[1]
+        x.url = ''
 
-            h1 = table.find('a')
-            x.url = h1['href']
+        # we just want the id
+        ma = re.search ('download/(.*?)/', m[0])
+        if(ma is not None):
+            x.url = ma.group(1)
+            #xbmc.log(x.url)
 
-            # we just want the id
-            s = x.url.index('id=')
-            x.url = x.url[s+3:]
+        x.title = m[2]
 
-            sp = table.find('span')
-            x.title = sp.text
+        x.text = m[3].replace('|',' ')
+        x.vid = ''
 
-            text1 = table.find('div' , {'class' : 'homedoublehighlight'} )
-            x.text = text1.text
-            x.text = x.text.replace('|',' ')
-            x.vid = ''
-
-            itemlist.append(x)
+        itemlist.append(x)
 
     # search for actual movies
 
