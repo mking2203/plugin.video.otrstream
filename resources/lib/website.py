@@ -6,10 +6,12 @@ Created on 27.04.2017
 @author: Mark König
 '''
 
+import sys
 import mechanize, re
 from BeautifulSoup import BeautifulSoup
 import time, os, datetime
-import urllib, cookielib
+import urllib
+import cookielib
 import searchStrings
 import xbmc
 import requests
@@ -44,25 +46,17 @@ def checkCookie(cookiePath):
 
 def login(user, pw, cookiePath):
 
-    br = mechanize.Browser()
+    x = ItemClass()
+    x.state = 'not loged in'
+    x.id = '0'
+    x.decode = '0'
+    x.value = '0'
 
+    br = mechanize.Browser()
     cj = cookielib.LWPCookieJar()
 
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
-
-    br.open("https://www.onlinetvrecorder.com/v2/?go=home")
-
-    # login form
-    br.select_form('fhomelogin')
-
-    br['email'] = user
-    br['password'] = pw
-
-    # result = br.submit().read()
-
-    # change 02/19
-    # not working since the base url is wrong...
 
     loginURL = "https://www.onlinetvrecorder.com/v2/?go=login"
     params = {u'email': user,
@@ -70,73 +64,63 @@ def login(user, pw, cookiePath):
               u'rememberlogin' : '1',
               u'btn_login' :'+Anmelden+'}
     data = urllib.urlencode(params)
-    response =br.open(loginURL,data)
-    result = response.read()
-
-    em = ''
-    pw = ''
+    response = br.open(loginURL,data)
+    result = response.read().decode('UTF-8')
 
     # get user and pw and set cookies
     m = re.search('otr_email=(.*?);', result)
     if(m != None):
         em = m.group(1)
-    m = re.search('otr_password=(.*?);', result)
-    if(m != None):
-        pw = m.group(1)
+        m = re.search('otr_password=(.*?);', result)
+        if(m != None):
+            pw = m.group(1)
 
-    date = datetime.datetime.now()
-    ts = time.mktime(date.timetuple())
-    ts = ts + 86400
+            date = datetime.datetime.now()
+            ts = time.mktime(date.timetuple())
+            ts = ts + 86400
 
-    c = cookielib.Cookie(version=0, name='otr_email', value=em, port=None, port_specified=False, domain='onlinetvrecorder.com',
+            c = cookielib.Cookie(version=0, name='otr_email', value=em, port=None, port_specified=False, domain='onlinetvrecorder.com',
                          domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
                          secure=False, expires=ts, discard=True, comment=None, comment_url=None,
                          rest={'HttpOnly': None}, rfc2109=False)
-    cj.set_cookie(c)
-    c = cookielib.Cookie(version=0, name='otr_email', value=em, port=None, port_specified=False, domain='www.onlinetvrecorder.com',
+            cj.set_cookie(c)
+            c = cookielib.Cookie(version=0, name='otr_email', value=em, port=None, port_specified=False, domain='www.onlinetvrecorder.com',
                          domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
                          secure=False, expires=ts, discard=True, comment=None, comment_url=None,
                          rest={'HttpOnly': None}, rfc2109=False)
-    cj.set_cookie(c)
+            cj.set_cookie(c)
 
-    c = cookielib.Cookie(version=0, name='otr_password', value=pw, port=None, port_specified=False, domain='onlinetvrecorder.com',
+            c = cookielib.Cookie(version=0, name='otr_password', value=pw, port=None, port_specified=False, domain='onlinetvrecorder.com',
                          domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
                          secure=False, expires=ts, discard=True, comment=None, comment_url=None,
                          rest={'HttpOnly': None}, rfc2109=False)
-    cj.set_cookie(c)
-    c = cookielib.Cookie(version=0, name='otr_password', value=pw, port=None, port_specified=False, domain='www.onlinetvrecorder.com',
+            cj.set_cookie(c)
+            c = cookielib.Cookie(version=0, name='otr_password', value=pw, port=None, port_specified=False, domain='www.onlinetvrecorder.com',
                          domain_specified=False, domain_initial_dot=False, path='/', path_specified=True,
                          secure=False, expires=ts, discard=True, comment=None, comment_url=None,
                          rest={'HttpOnly': None}, rfc2109=False)
-    cj.set_cookie(c)
+            cj.set_cookie(c)
 
+            #now reload
+            response = br.reload();
+            result = response.read().decode('UTF-8')
 
-    #now reload
-    response = br.reload();
-    result = response.read()
+            # info fron website
+            match = re.search('my_user_id="(?P<id>.*?)";.*?my_ut="(?P<state>.*?)"', result)
+            if(match != None):
+                if(match.group('state')!= ''):
+                    cj.save(cookiePath, ignore_discard=True, ignore_expires=True)
 
-    x = ItemClass()
-    x.state = 'not loged in'
-    x.id = '0'
-    x.decode = '0'
-    x.value = '0'
+                    x.id = match.group('id')
+                    x.state = match.group('state').title()
 
-    # info fron website
-    match = re.search('my_user_id="(?P<id>.*?)";.*?my_ut="(?P<state>.*?)"', result)
-    if(match != None):
-        if(match.group('state')!= ''):
-            cj.save(cookiePath, ignore_discard=True, ignore_expires=True)
+                    match = re.search('<a.href="history.decodings".*?<div.*?>(?P<value>[^<]*)<', result, re.DOTALL)
+                    if(match != None):
+                        x.decode = match.group('value')
 
-            x.id = match.group('id')
-            x.state = match.group('state').title()
-
-        match = re.search('<a.href="history.decodings".*?<div.*?>(?P<value>[^<]*)<', result, re.DOTALL)
-        if(match != None):
-            x.decode = match.group('value')
-
-        match = re.search('<div.id="cssmenuright">.*?<a.href="points.*?>(?P<value>[^<]*)<', result, re.DOTALL)
-        if(match != None):
-            x.value = match.group('value')
+                        match = re.search('<div.id="cssmenuright">.*?<a.href="points.*?>(?P<value>[^<]*)<', result, re.DOTALL)
+                        if(match != None):
+                            x.value = match.group('value')
 
     return x
 

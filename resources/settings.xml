@@ -14,5 +14,7 @@
     <setting id="debug" type="bool" label="30012" default="false"/>
     <setting type="sep" />
     <setting id="view" type="bool" label="30016" default="true"/>
+    <setting type="sep" />
+    <setting id="live" type="bool" label="Live TV alle Sender" default="true"/>
   </category>
 </settings>
