@@ -16,5 +16,11 @@
     <setting id="view" type="bool" label="30016" default="true"/>
     <setting type="sep" />
     <setting id="live" type="bool" label="Live TV alle Sender" default="true"/>
+    <setting id="s1" type="text" label="s1" visible="false"/>
+    <setting id="s2" type="text" label="s2" visible="false"/>
+    <setting id="s3" type="text" label="s3" visible="false"/>
+    <setting id="s4" type="text" label="s4" visible="false"/>
+    <setting id="s5" type="text" label="s5" visible="false"/>
+    <setting id="s6" type="text" label="s6" visible="false"/>
   </category>
 </settings>

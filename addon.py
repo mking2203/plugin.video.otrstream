@@ -144,7 +144,7 @@ def mainSelector():
 
     addPictureItem(__addon.getLocalizedString(30032), _url + '?genres=all', 'DefaultFolder.png')  # genres
 
-    addPictureItem(__addon.getLocalizedString(30031), _url + '?search=now', 'DefaultFolder.png')  # suche
+    addPictureItem(__addon.getLocalizedString(30031), _url + '?search=select', 'DefaultFolder.png')  # suche
     addPictureItem(__addon.getLocalizedString(30037), _url + '?station=now', 'DefaultFolder.png')  # suche station
 
     str1 = __addon.getSetting('search1').decode("utf-8")
@@ -364,10 +364,38 @@ def showPreview(url, title):
     if __debug:
         xbmc.log('Play preview ' + url)
 
-    listitem =xbmcgui.ListItem (title)
+    listitem = xbmcgui.ListItem (title)
     listitem.setInfo('video', {'Title': title })
 
     xbmc.Player().play(url, listitem)
+
+def searchOverview():
+
+    xbmcplugin.setContent(_handle, 'files')
+
+    #addPictureItem(__addon.getLocalizedString(30030), _url + '?search=new', 'DefaultFolder.png')    # new search
+    addPictureItem('Neue Suche', _url + '?search=new', 'DefaultFolder.png')    # new search
+
+    s1 = xbmcplugin.getSetting(_handle, 's1')
+    if(len(s1) > 0):
+        addPictureItem(s1, _url + '?search=' + s1 + '&page=1', 'DefaultFolder.png')    # search 01
+    s2 = xbmcplugin.getSetting(_handle, 's2')
+    if(len(s2) > 0):
+        addPictureItem(s2, _url + '?search=' + s2 + '&page=1', 'DefaultFolder.png')    # search 02
+    s3 = xbmcplugin.getSetting(_handle, 's3')
+    if(len(s3) > 0):
+        addPictureItem(s3, _url + '?search=' + s3 + '&page=1', 'DefaultFolder.png')    # search 03
+    s4 = xbmcplugin.getSetting(_handle, 's4')
+    if(len(s4) > 0):
+        addPictureItem(s4, _url + '?search=' + s4 + '&page=1', 'DefaultFolder.png')    # search 04
+    s5 = xbmcplugin.getSetting(_handle, 's5')
+    if(len(s5) > 0):
+        addPictureItem(s5, _url + '?search=' + s5 + '&page=1', 'DefaultFolder.png')    # search 05
+    s6 = xbmcplugin.getSetting(_handle, 's6')
+    if(len(s6) > 0):
+        addPictureItem(s6, _url + '?search=' + s6 + '&page=1', 'DefaultFolder.png')    # search 06
+
+    xbmcplugin.endOfDirectory(_handle)
 
 def search():
 
@@ -386,28 +414,21 @@ def search():
 
         if len(keyword) > 0:
 
-            xbmcplugin.setContent(_handle, 'movies')
+            s1 = xbmcplugin.getSetting(_handle, 's1')
+            s2 = xbmcplugin.getSetting(_handle, 's2')
+            s3 = xbmcplugin.getSetting(_handle, 's3')
+            s4 = xbmcplugin.getSetting(_handle, 's4')
+            s5 = xbmcplugin.getSetting(_handle, 's5')
+            s6 = xbmcplugin.getSetting(_handle, 's6')
 
-            addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=2', 'DefaultFolder.png')
+            __addon.setSetting(id='s6', value=s5)
+            __addon.setSetting(id='s5', value=s4)
+            __addon.setSetting(id='s4', value=s3)
+            __addon.setSetting(id='s3', value=s2)
+            __addon.setSetting(id='s2', value=s1)
+            __addon.setSetting(id='s1', value=keyword)
 
-            de = xbmcplugin.getSetting(_handle, 'searchDE')== "true"
-            hList = website.search(login, password, __cookiePath, keyword, '1', de)
-
-            for aItem in hList:
-                id = aItem.id
-                title = aItem.title
-                if len(aItem.serie) > 0:
-                    desc = aItem.date + " " + aItem.time + " " + aItem.serie +  "-" + aItem.episode +  " " + aItem.desc
-                else:
-                    desc = aItem.date + " " + aItem.time + " " + aItem.desc
-                thumb = aItem.thumb
-
-                addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
-
-            if(__view):
-                xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
-
-            xbmcplugin.endOfDirectory(_handle)
+            searchPage(keyword, 1)
 
 def searchStation():
 
@@ -1158,7 +1179,9 @@ try:
         SHOW_CREDIT = False
         showSelector(PARAMS['actual'][0])
     elif PARAMS.has_key('search'):
-        if (PARAMS['search'][0] == 'now'):
+        if (PARAMS['search'][0] == 'select'):
+            searchOverview()
+        elif (PARAMS['search'][0] == 'new'):
             search()
         elif (PARAMS['search'][0][:5] == 'group'):
             searchGroup(PARAMS['search'][0], PARAMS['page'][0])
