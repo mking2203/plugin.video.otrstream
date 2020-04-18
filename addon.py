@@ -228,16 +228,8 @@ def showSelector(page):
 
     if(iPage < 2):
         hList = website.getMoreData(login, password, __cookiePath, 1)
-
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?actual=2', 'DefaultFolder.png')
-
-    if(iPage > 1):
+    else:
         hList = website.getMoreData(login, password, __cookiePath, iPage)
-
-        no = iPage - 1
-        addPictureItem(__addon.getLocalizedString(30021), _url + '?actual=' + str(no), 'DefaultFolder.png')
-        no = iPage + 1
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?actual=' + str(no), 'DefaultFolder.png')
 
     for aItem in hList:
         title= HTMLParser.HTMLParser().unescape(aItem.title)
@@ -245,6 +237,12 @@ def showSelector(page):
         url = aItem.url
         thumb = aItem.thumb
         addPictureItem2(title, _url + '?categories=%s' % url + '&title=%s' % title , thumb, desc)
+
+    if(iPage < 2):
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?actual=2', 'DefaultFolder.png') # next page
+    else:
+        no = iPage + 1
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?actual=' + str(no), 'DefaultFolder.png') # next page
 
     if(__view):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView2)
@@ -373,8 +371,7 @@ def searchOverview():
 
     xbmcplugin.setContent(_handle, 'files')
 
-    #addPictureItem(__addon.getLocalizedString(30030), _url + '?search=new', 'DefaultFolder.png')    # new search
-    addPictureItem('Neue Suche', _url + '?search=new', 'DefaultFolder.png')    # new search
+    addPictureItem(__addon.getLocalizedString(30086), _url + '?search=new', 'DefaultFolder.png')    # new search
 
     s1 = xbmcplugin.getSetting(_handle, 's1')
     if(len(s1) > 0):
@@ -395,7 +392,7 @@ def searchOverview():
     if(len(s6) > 0):
         addPictureItem(s6, _url + '?search=' + s6 + '&page=1', 'DefaultFolder.png')    # search 06
 
-    xbmcplugin.endOfDirectory(_handle)
+    xbmcplugin.endOfDirectory(_handle, cacheToDisc=False)
 
 def search():
 
@@ -466,8 +463,6 @@ def searchStation():
 
             xbmcplugin.setContent(_handle, 'movies')
 
-            #addPictureItem(__addon.getLocalizedString(30020), _url + '?station=' + station + '&page=2&keyword=' + keyword, 'DefaultFolder.png')
-
             de = xbmcplugin.getSetting(_handle, 'searchDE')== "true"
             hList = website.searchStation(login,password, __cookiePath, keyword, station, date, '1')
 
@@ -481,6 +476,8 @@ def searchStation():
                 thumb = aItem.thumb
 
                 addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
+
+            #addPictureItem(__addon.getLocalizedString(30020), _url + '?station=' + station + '&page=2&keyword=' + keyword, 'DefaultFolder.png')
 
             if(__view):
                 xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
@@ -500,15 +497,6 @@ def searchPage(keyword, page, station=None):
 
     iPage = int(page)
 
-    if(iPage < 2):
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=2', 'DefaultFolder.png')
-
-    if(iPage > 1):
-        x = iPage - 1
-        addPictureItem(__addon.getLocalizedString(30021), _url + '?search=' + keyword + '&page=' + str(x), 'DefaultFolder.png')
-        x = iPage + 1
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=' + str(x), 'DefaultFolder.png')
-
     de = xbmcplugin.getSetting(_handle, 'searchDE')== "true"
     hList = website.search(login,password, __cookiePath, keyword, page, de)
 
@@ -522,6 +510,12 @@ def searchPage(keyword, page, station=None):
         thumb = aItem.thumb
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
+
+    if(iPage < 2):
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=2', 'DefaultFolder.png') # next page
+    else:
+        x = iPage + 1
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + keyword + '&page=' + str(x), 'DefaultFolder.png') # next page
 
     if(__view):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
@@ -540,15 +534,6 @@ def searchGroup(group , page):
 
     iPage = int(page)
 
-    if(iPage < 2):
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + group + '&page=2', 'DefaultFolder.png')
-
-    if(iPage > 1):
-        x = iPage - 1
-        addPictureItem(__addon.getLocalizedString(30021), _url + '?search=' + group + '&page=' + str(x), 'DefaultFolder.png')
-        x = iPage + 1
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + group + '&page=' + str(x), 'DefaultFolder.png')
-
     de = xbmcplugin.getSetting(_handle, 'searchDE')== "true"
     hList = website.searchGroup(login, password, __cookiePath, group, page)
 
@@ -562,6 +547,12 @@ def searchGroup(group , page):
         thumb = aItem.thumb
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
+
+    if(iPage < 2):
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + group + '&page=2', 'DefaultFolder.png')
+    else:
+        x = iPage + 1
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?search=' + group + '&page=' + str(x), 'DefaultFolder.png')
 
     if(__view):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
@@ -580,15 +571,6 @@ def showRecords(page):
 
     iPage = int(page)
 
-    if(iPage < 2):
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?records=2', 'DefaultFolder.png')
-
-    if(iPage > 1):
-        x = iPage - 1
-        addPictureItem(__addon.getLocalizedString(30021), _url + '?records=' + str(x), 'DefaultFolder.png')
-        x = iPage + 1
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?records=' + str(x), 'DefaultFolder.png')
-
     hList = website.getRecords(login, password, __cookiePath, page)
     for aItem in hList:
         id = aItem.id
@@ -600,6 +582,12 @@ def showRecords(page):
         thumb = aItem.thumb
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
+
+    if(iPage < 2):
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?records=2', 'DefaultFolder.png') # next page
+    else:
+        x = iPage + 1
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?records=' + str(x), 'DefaultFolder.png') # next page
 
     if(__view):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
@@ -618,15 +606,6 @@ def showToplist(no, page):
 
     iPage = int(page)
 
-    if(iPage < 2):
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?toplist=' + no + '&page=2', 'DefaultFolder.png')
-
-    if(iPage > 1):
-        x = iPage - 1
-        addPictureItem(__addon.getLocalizedString(30021), _url + '?toplist=' + no + '&page=' + str(x), 'DefaultFolder.png')
-        x = iPage + 1
-        addPictureItem(__addon.getLocalizedString(30020), _url + '?toplist=' + no + '&page=' + str(x), 'DefaultFolder.png')
-
     hList = website.getList(login, password, __cookiePath, no, page)
     for aItem in hList:
         id = aItem.id
@@ -638,6 +617,12 @@ def showToplist(no, page):
         thumb = aItem.thumb
 
         addPictureItem3(title, _url + '?categories=%s' % id + '&title=%s' % title, thumb, desc, aItem.genre)
+
+    if(iPage < 2):
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?toplist=' + no + '&page=2', 'DefaultFolder.png')
+    else:
+        x = iPage + 1
+        addPictureItem(__addon.getLocalizedString(30020), _url + '?toplist=' + no + '&page=' + str(x), 'DefaultFolder.png')
 
     if(__view):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % MediaListView3)
