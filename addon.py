@@ -1,8 +1,9 @@
-#!/usr/bin/python
+﻿#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+#    otrstream Addon
 #
-#    copyright (C) 2017 Mark Koenig
+#      Copyright (C) 2017 Mark König
 #
 #    GUI EPG:
 #    based on ZattooBoxExtended by Daniel Griner (griner.ch@gmail.com) License under GPL
@@ -34,8 +35,6 @@ import urllib, urllib2
 import requests
 
 import re
-
-import buggalo
 import json
 
 import mechanize
@@ -1234,4 +1233,4 @@ try:
         mainSelector()
 
 except Exception:
-    buggalo.onExceptionRaised()
+    xbmc.log('otrstream Exception: ' + str(e))

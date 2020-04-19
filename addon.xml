@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.otrstream" version="1.0.34" name="otrstream" provider-name="Mark Koenig">
+<addon id="plugin.video.otrstream" version="1.0.35" name="otrstream" provider-name="Mark König">
     <requires>
         <import addon="xbmc.python" version="2.14.0"/>
         <import addon="xbmc.addon" version="13.0.0" />
-        <import addon="script.module.buggalo" version="1.1.8"/>
         <import addon="script.module.mechanize" version="0.2.6"/>
         <import addon="script.module.beautifulsoup" version="3.0.8"/>
         <import addon="script.module.requests" version="2.9.1"/>
@@ -22,5 +21,13 @@
         <email>mark.koenig@kleiner-schelm.de</email>
         <website>https://www.kodinerds.net/index.php/Thread/51548-Release-otrstrem-Plugin-f%C3%BCr-OTR-www-onlinetvrecorder-com</website>
         <source>https://github.com/mking2203/plugin.video.otrstream</source>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart></fanart>
+            <screenshot>resources/screenshot000.png</screenshot>
+            <screenshot>resources/screenshot001.png</screenshot>
+            <screenshot>resources/screenshot002.png</screenshot>
+            <screenshot>resources/screenshot003.png</screenshot>
+        </assets>
     </extension>
 </addon>
