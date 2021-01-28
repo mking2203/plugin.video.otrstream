@@ -1,5 +1,5 @@
 import mechanize, re
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from datetime import date
 
 class ItemClass(object):

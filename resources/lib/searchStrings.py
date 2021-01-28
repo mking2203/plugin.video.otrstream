@@ -182,7 +182,7 @@ def getSearchStationString(keyword, station, selDate, page):
     s += '&title=' + keyword
     s += '&date=all'
     s += '&cbsing=1'
-    if(station <> ''):
+    if(station != ''):
         s += '&selectedstation_' + station + '=on'
     s += '&source=otr'
     s += '&intimefrom=0'

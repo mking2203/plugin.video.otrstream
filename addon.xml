@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.otrstream" version="1.0.35" name="otrstream" provider-name="Mark König">
+	<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.otrstream" version="3.0.1" name="otrstream" provider-name="Mark König">
     <requires>
-        <import addon="xbmc.python" version="2.14.0"/>
+        <import addon="xbmc.python" version="3.0.0"/>
         <import addon="xbmc.addon" version="13.0.0" />
         <import addon="script.module.mechanize" version="0.2.6"/>
-        <import addon="script.module.beautifulsoup" version="3.0.8"/>
+        <import addon="script.module.beautifulsoup4" version="4.3.1"/>
         <import addon="script.module.requests" version="2.9.1"/>
-        <import addon="script.module.inputstreamhelper" version="0.3.4"/>
+        <import addon="script.module.inputstreamhelper" version="0.4.4"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon.py">
         <provides>video</provides>
@@ -29,5 +29,8 @@
             <screenshot>resources/screenshot002.png</screenshot>
             <screenshot>resources/screenshot003.png</screenshot>
         </assets>
+        <news>
+[B]3.0.1[/B] - 05.11.2020[CR]- Migrate to Matrix[CR]
+        </news>
     </extension>
 </addon>

@@ -27,22 +27,25 @@
 
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 import xbmcvfs
-import sys, urlparse, os
+import sys, os
+from urllib.parse import urlparse
 import time
 import datetime
 
-import urllib, urllib2
+import urllib
 import requests
 
 import re
 import json
 
 import mechanize
-import HTMLParser
-from BeautifulSoup import BeautifulSoup
+from html.parser import HTMLParser
+import html
+from bs4 import BeautifulSoup
+
+from random import randint
 
 import inputstreamhelper
-from random import randint
 
 PROTOCOL = 'mpd'
 DRM = 'com.widevine.alpha'
@@ -67,28 +70,28 @@ __addonname = __addon.getAddonInfo('name')
 
 __icon = __addon.getAddonInfo('icon')
 
-__addonpath = __addon.getAddonInfo('path').decode("utf-8")
+__addonpath = __addon.getAddonInfo('path')
 __debug = __addon.getSetting('debug') == "true"
 __view = __addon.getSetting('view') == "true"
 
-__profilePath = xbmc.translatePath(__addon.getAddonInfo('profile')).decode("utf-8")
+__profilePath = xbmcvfs.translatePath(__addon.getAddonInfo('profile'))
 if not xbmcvfs.exists(__profilePath): xbmcvfs.mkdirs(__profilePath)
 __cookiePath = os.path.join(__profilePath, "cookie.db")
 
 _filePath = os.path.join(__profilePath, "user.txt")
 _chanList = os.path.join(__profilePath, "channel.txt")
 
-__resource  = xbmc.translatePath(os.path.join(__addonpath, 'resources', 'lib' )).decode("utf-8")
+__resource  = xbmcvfs.translatePath(os.path.join(__addonpath, 'resources', 'lib' ))
 sys.path.append(__resource)
 
 USE_ALL = __addon.getSetting('live') == "true"
 
 import website
 
-from resources.otrDB import otrDB
-from resources.epg.epg import EPG
-
-__otrDB = otrDB()
+# at the moment the EPG is disabled
+# from resources.otrDB import otrDB
+# from resources.epg.epg import EPG
+# __otrDB = otrDB()
 
 def showCredit():
 
@@ -103,12 +106,12 @@ def showCredit():
 
     # to do checks
     if(data.state == 'Premium'):
-        xbmcgui.Dialog().ok('otrstream', __addon.getLocalizedString(30040) + ' ' + xbmcplugin.getSetting(_handle, 'email') ,
-                                        __addon.getLocalizedString(30041) +  ' ' + data.state + ' - ' + data.decode,
+        xbmcgui.Dialog().ok('otrstream', __addon.getLocalizedString(30040) + ' ' + xbmcplugin.getSetting(_handle, 'email') + '\n' +
+                                        __addon.getLocalizedString(30041) +  ' ' + data.state + ' - ' + data.decode + '\n' +
                                         __addon.getLocalizedString(30042) + ' ' + data.value)
     else:
-        xbmcgui.Dialog().ok('otrstream', __addon.getLocalizedString(30040) + ' ' + xbmcplugin.getSetting(_handle, 'email') ,
-                                        __addon.getLocalizedString(30041) +  ' ' + data.state + ' - ' + data.decode,
+        xbmcgui.Dialog().ok('otrstream', __addon.getLocalizedString(30040) + ' ' + xbmcplugin.getSetting(_handle, 'email') + '\n' +
+                                        __addon.getLocalizedString(30041) +  ' ' + data.state + ' - ' + data.decode + '\n' +
                                         __addon.getLocalizedString(30042) + ' ' + data.value)
 
 def mainSelector():
@@ -121,7 +124,7 @@ def mainSelector():
     password = xbmcplugin.getSetting(_handle, 'pass')
 
     data = website.login(login, password, __cookiePath)
-    xbmc.log('OTR ' + data.state , xbmc.LOGNOTICE)
+    xbmc.log('OTR ' + data.state , xbmc.LOGDEBUG)
 
     xbmcplugin.setContent(_handle, 'files')
 
@@ -134,7 +137,7 @@ def mainSelector():
     if(data.state == 'Premium'):
         #start URL
         link = 'https://www.onlinetvrecorder.com/v2/watchlist/choose.php?genre=Comedy'
-        link = urllib.quote_plus(link)
+        link = urllib.parse.quote_plus(link)
         addPictureItem(__addon.getLocalizedString(30045), _url + '?online=nav&url=' + link, 'DefaultFolder.png')  # online
 
     addPictureItem(__addon.getLocalizedString(30034), _url + '?records=all', 'DefaultFolder.png') # meine aufnahmen
@@ -146,19 +149,20 @@ def mainSelector():
     addPictureItem(__addon.getLocalizedString(30031), _url + '?search=select', 'DefaultFolder.png')  # suche
     addPictureItem(__addon.getLocalizedString(30037), _url + '?station=now', 'DefaultFolder.png')  # suche station
 
-    str1 = __addon.getSetting('search1').decode("utf-8")
-    str2 = __addon.getSetting('search2').decode("utf-8")
-    str3 = __addon.getSetting('search3').decode("utf-8")
+    str1 = __addon.getSetting('search1')
+    str2 = __addon.getSetting('search2')
+    str3 = __addon.getSetting('search3')
 
-    if(str1 <>''):
+    if(str1 != ''):
         addPictureItem(__addon.getLocalizedString(30031) + ' : ' + str1, _url + '?search=' + str1 + '&page=1', 'DefaultFolder.png')
-    if(str2 <>''):
+    if(str2 != ''):
         addPictureItem(__addon.getLocalizedString(30031) + ' : ' + str2, _url + '?search=' + str2 + '&page=1', 'DefaultFolder.png')
-    if(str3 <>''):
+    if(str3 != ''):
         addPictureItem(__addon.getLocalizedString(30031) + ' : ' + str3, _url + '?search=' + str3 + '&page=1', 'DefaultFolder.png')
 
     addPictureItem(__addon.getLocalizedString(30033), _url + '?credit=now', 'DefaultFolder.png')  # benutzer info
-    addPictureItem('EPG', _url + '?epg=today', 'DefaultFolder.png')  #epg
+    # at the moment the EPG is disabled
+    # addPictureItem('EPG', _url + '?epg=today', 'DefaultFolder.png')  #epg
 
     if(__view):
         xbmc.executebuiltin('Container.SetViewMode(%d)' % ThumbnailView)
@@ -231,8 +235,8 @@ def showSelector(page):
         hList = website.getMoreData(login, password, __cookiePath, iPage)
 
     for aItem in hList:
-        title= HTMLParser.HTMLParser().unescape(aItem.title)
-        desc = HTMLParser.HTMLParser().unescape(aItem.text)
+        title= HTMLParser().unescape(aItem.title)
+        desc = HTMLParser().unescape(aItem.text)
         url = aItem.url
         thumb = aItem.thumb
         addPictureItem2(title, _url + '?categories=%s' % url + '&title=%s' % title , thumb, desc)
@@ -343,7 +347,8 @@ def showMovie(cs, rid, epg_id):
 
 
                 txt = title + '\n' + desc
-                playitem = xbmcgui.ListItem(path=link, thumbnailImage=thumb)
+                playitem = xbmcgui.ListItem(path=link)
+                # playitem = xbmcgui.ListItem(path=link, thumbnailImage=thumb)
                 playitem.setInfo('video', { 'plot': txt })
                 xbmc.Player().play(item=link, listitem=playitem)
             else:
@@ -356,7 +361,7 @@ def showPreview(url, title):
     if __debug:
         xbmc.log('- preview - ' + title + " / " + url)
 
-    url = urllib.unquote(url).decode('utf8')
+    url = urllib.parse.unquote(url)
 
     if __debug:
         xbmc.log('Play preview ' + url)
@@ -660,21 +665,21 @@ def showOnline(mode, url):
         xbmcplugin.setContent(_handle, 'files')
 
         page = website.getPage(login, password, __cookiePath, url)
-        soup = BeautifulSoup(page)
+        soup = BeautifulSoup(page, features='html5lib')
 
         table = soup.find('td' , {'class' : 'nav'} )
         strHtml = str(table)
 
-        regex = '<a.href=\"(.*?)\".*?>(.*?)<'
+        regex = '<a.*?href=\"(.*?)\".*?>(.*?)<'
         for m in re.finditer(regex, strHtml, re.DOTALL):
             link =  m.group(1).strip()
             name =  m.group(2).strip()
 
             if(mode == 'nav'):
-                link = urllib.quote_plus('https://www.onlinetvrecorder.com/v2/watchlist/choose.php' + link)
+                link = urllib.parse.quote_plus('https://www.onlinetvrecorder.com/v2/watchlist/choose.php' + link)
                 addPictureItem(name, _url + '?online=group&url=' + link, 'DefaultFolder.png') # group
             else:
-                link = urllib.quote_plus('https://www.onlinetvrecorder.com/v2/watchlist/watch.php' + link)
+                link = urllib.parse.quote_plus('https://www.onlinetvrecorder.com/v2/watchlist/watch.php' + link)
                 addPictureItem(name, _url + '?online=episode&url=' + link, 'DefaultFolder.png') # group
 
             if(__view):
@@ -686,7 +691,7 @@ def showOnline(mode, url):
         xbmcplugin.setContent(_handle, 'movies')
 
         page = website.getPage(login, password, __cookiePath, url)
-        soup = BeautifulSoup(page)
+        soup = BeautifulSoup(page, features='html5lib')
 
         tables = soup.findAll('td' , {'class' : 'wsite-multicol-col'} )
 
@@ -697,7 +702,7 @@ def showOnline(mode, url):
             regex = '<a.href=\"(.*?)\"'
             m = re.search(regex, strHtml)
             link = 'https://www.onlinetvrecorder.com/v2/watchlist/' + m.group(1)
-            link = urllib.quote_plus(link)
+            link = urllib.parse.quote_plus(link)
 
             regex = '<h2.*?<font.*?>(.*?)<'
             m = re.search(regex, strHtml, re.DOTALL)
@@ -718,7 +723,7 @@ def showOnline(mode, url):
         xbmcplugin.setContent(_handle, 'movies')
 
         page = website.getPage(login, password, __cookiePath, url)
-        soup = BeautifulSoup(page)
+        soup = BeautifulSoup(page, features='html5lib')
 
         tables = soup.findAll('td' , {'class' : 'wsite-multicol-col'} )
 
@@ -729,7 +734,7 @@ def showOnline(mode, url):
             regex = '<a.href=\"(.*?)\"'
             m = re.search(regex, strHtml)
             link = 'https://www.onlinetvrecorder.com/v2/watchlist/watch.php' + m.group(1)
-            link = urllib.quote_plus(link)
+            link = urllib.parse.quote_plus(link)
 
             regex = '<h2.*?<font.*?>(.*?)<'
             m = re.search(regex, strHtml, re.DOTALL)
@@ -750,7 +755,7 @@ def showOnline(mode, url):
         xbmcplugin.setContent(_handle, 'movies')
 
         page = website.getPage(login, password, __cookiePath, url)
-        soup = BeautifulSoup(page.decode('utf-8', 'ignore'))
+        soup = BeautifulSoup(page, features='html5lib')
 
         # image
         img = 'DefaultVideo.png'
@@ -762,7 +767,7 @@ def showOnline(mode, url):
         table = soup.find('div' , {'id' : 'bannerright'} )
         banner = str(table)
 
-        soup = BeautifulSoup(banner.decode('utf-8', 'ignore'))
+        soup = BeautifulSoup(banner, features='html5lib')
         table = soup.find('div' , {'class' : 'wsite-text wsite-headline-paragraph'} )
         strHtml = str(table)
 
@@ -782,7 +787,7 @@ def showOnline(mode, url):
         title = m.group(1).strip()
 
         # url (same)
-        url = urllib.quote_plus(url)
+        url = urllib.parse.quote_plus(url)
 
         addMovieItemExt(title, _url + '?online=movie&url=' + url, img, cost + '\n' + desc) # movie
 
@@ -811,12 +816,13 @@ def showOnline(mode, url):
             # get parameters
             regex = 'getSeriesWatchlistPlayer\(\'(.*?)\',\'(.*?)\''
             m = re.search(regex, page)
-
+            
             if m is not None:
+                            
                 # query values
                 link = 'https://www.onlinetvrecorder.com/v2/ajax/get_series_watchlist_player.php'
                 page = website.getOnlineMovie( __cookiePath, link, m.group(1), m.group(2))
-
+                
                 # now find source
                 regex = '<source.src=\"(.*?)\"'
                 m = re.search(regex, page)
@@ -825,10 +831,15 @@ def showOnline(mode, url):
                     listitem =xbmcgui.ListItem ('Movie')
                     listitem.setInfo('video', {'Title': 'Movie' })
                     xbmc.Player().play(m.group(1), listitem)
+                else:
+                    xbmcgui.Dialog().notification(__addonname, 'ERROR - no source?' , time=3000) #__addon.getLocalizedString(30101)
+                    
+            else:
+                xbmcgui.Dialog().notification(__addonname, 'ERROR - no ID?' , time=3000) #__addon.getLocalizedString(30101)
 
 def addPictureItem(title, url, thumb):
 
-    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+    list_item = xbmcgui.ListItem(label=title)
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
@@ -838,7 +849,7 @@ def addPictureItem(title, url, thumb):
 
 def addPictureItem2(title, url, thumb, desc):
 
-    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+    list_item = xbmcgui.ListItem(label=title)
     list_item.addContextMenuItems([(__addon.getLocalizedString(30022), 'Action(ParentDir)'),
                                    (__addon.getLocalizedString(30023), 'XBMC.Container.Update(plugin://plugin.video.otrstream/?main=go)'),
                                    (__addon.getLocalizedString(30024), 'ActivateWindow(10000)')])
@@ -853,7 +864,7 @@ def addPictureItem2(title, url, thumb, desc):
 
 def addPictureItem2s(title, url, thumb, desc, stars):
 
-    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+    list_item = xbmcgui.ListItem(label=title)
     list_item.addContextMenuItems([(__addon.getLocalizedString(30022), 'Action(ParentDir)'),
                                    (__addon.getLocalizedString(30023), 'XBMC.Container.Update(plugin://plugin.video.otrstream/?main=go)'),
                                    (__addon.getLocalizedString(30024), 'ActivateWindow(10000)')])
@@ -868,7 +879,7 @@ def addPictureItem2s(title, url, thumb, desc, stars):
 
 def addPictureItem3(title, url, thumb, desc, genre):
 
-    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+    list_item = xbmcgui.ListItem(label=title)
     list_item.addContextMenuItems([(__addon.getLocalizedString(30022), 'Action(ParentDir)'),
                                    (__addon.getLocalizedString(30023), 'XBMC.Container.Update(plugin://plugin.video.otrstream/?main=go)'),
                                    (__addon.getLocalizedString(30024), 'ActivateWindow(10000)')])
@@ -882,7 +893,7 @@ def addPictureItem3(title, url, thumb, desc, genre):
 
 def addMovieItem(title, url, thumb):
 
-    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+    list_item = xbmcgui.ListItem(label=title)
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
@@ -892,7 +903,7 @@ def addMovieItem(title, url, thumb):
 
 def addMovieItemExt(title, url, thumb, desc):
 
-    list_item = xbmcgui.ListItem(label=title, thumbnailImage=thumb)
+    list_item = xbmcgui.ListItem(label=title)
 
     list_item.setArt({'thumb': thumb,
                       'icon': thumb,
@@ -937,18 +948,20 @@ def play(tv):
                     ref = ref + '&sec=' + sec
 
                     url = 'https://' + mpd + '?cp=' + str(randint(20000,50000))
-                    url = url + '|Origin=' + urllib.quote_plus('https://h5p2p.peer-stream.com')
-                    url = url + '&Referer=' + urllib.quote_plus(ref)
+                    url = url + '|Origin=' + urllib.parse.quote_plus('https://h5p2p.peer-stream.com')
+                    url = url + '&Referer=' + urllib.parse.quote_plus(ref)
 
                     if member == 'free':
                         thumb = 'https://static.onlinetvrecorder.com/images/easy/stationlogos/white/' + lower.replace(' ','%20') + '.gif'
                     else:
                         thumb = 'https://static.onlinetvrecorder.com/images/easy/stationlogos/black/' + lower.replace(' ','%20') + '.gif'
 
-                    playitem = xbmcgui.ListItem(path=url, thumbnailImage=thumb)
-                    txt =  urllib.unquote(title) + ' ' + start + '-' + stop + '\n' + urllib.unquote(desc)
+                    playitem = xbmcgui.ListItem(path=url)
+                    playitem.setArt({'thumb': thumb})
+                    
+                    txt =  urllib.parse.unquote(title) + ' ' + start + '-' + stop + '\n' + urllib.parse.unquote(desc)
                     playitem.setInfo('video', { 'plot': txt })
-                    playitem.setProperty('inputstreamaddon', is_helper.inputstream_addon)
+                    playitem.setProperty('inputstream', is_helper.inputstream_addon)
                     playitem.setProperty('inputstream.adaptive.manifest_type', PROTOCOL)
                     playitem.setProperty('inputstream.adaptive.manifest_update_parameter', 'full')
                     xbmc.Player().play(item=url, listitem=playitem)
@@ -968,7 +981,7 @@ def showChannels(userState, chanList):
 
             if not USE_ALL:
 
-                f= file(chanList,'r')
+                f= open(chanList,'r')
                 lines = f.readlines()
                 f.close()
 
@@ -1010,7 +1023,7 @@ def addItem(item1):
     if(nxt != ''):
         strInfo = strInfo + "\nDanach: " + nxt
 
-    desc = urllib.unquote(desc)
+    desc = urllib.parse.unquote(desc)
 
     if(len(desc) > 150):
         desc = desc[:147] + '...'
@@ -1023,7 +1036,8 @@ def addItem(item1):
     else:
         thumb = 'https://static.onlinetvrecorder.com/images/easy/stationlogos/black/' + lower.replace(' ','%20') + '.gif'
 
-    list_item = xbmcgui.ListItem(label=channel + ': ' + title, thumbnailImage=thumb)
+    list_item = xbmcgui.ListItem(label=channel + ': ' + title)
+    list_item.setArt({'thumb': thumb})
     list_item.setInfo('video', { 'plot': desc })
     xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
 
@@ -1060,7 +1074,7 @@ def getUserState():
 def saveFile(filePath, userState):
 
     try:
-        f = file(filePath,'w')
+        f = open(filePath,'w')
         f.write(userState)
         f.close()
     except Exception as e:
@@ -1090,7 +1104,7 @@ def checkFile(filePath, userState):
             deleteFile(filePath)
             return False
         else:
-            f= file(filePath,'r')
+            f= open(filePath,'r')
             txt = f.read()
             f.close()
 
@@ -1104,10 +1118,10 @@ def checkFile(filePath, userState):
 
 def createDefault(chanList):
 
-    if(True):
+    if(not os.path.exists(chanList)):
 
         try:
-            f = file(chanList,'w')
+            f = open(chanList,'w')
             f.write('ARD\n')
             f.write('ZDF\n')
             f.write('NDR\n')
@@ -1115,9 +1129,11 @@ def createDefault(chanList):
             f.write('SAT 1\n')
             f.write('KABEL 1\n')
             f.write('PRO SIEBEN\n')
+            f.write('SRTL\n')
             f.write('RTL2\n')
             f.write('KABEL1DOKU\n')
             f.write('DMAX\n')
+            f.write('SIXX\n')
             f.write('TLC\n')
             f.write('N24\n')
             f.write('EUROSPORT\n')
@@ -1132,10 +1148,10 @@ def createDefault(chanList):
 
 if __name__ == '__main__':
 
-    PARAMS = urlparse.parse_qs(sys.argv[2][1:])
+    PARAMS = urllib.parse.parse_qs(sys.argv[2][1:])
     createDefault(_chanList)
 
-try:
+#try:
 
     # check login
     check = website.checkCookie(__cookiePath)
@@ -1149,20 +1165,20 @@ try:
         if(login.state == 'not loged in'):
             xbmcgui.Dialog().notification(__addonname, __addon.getLocalizedString(30101), time=5000)
 
-    if PARAMS.has_key('categories'):
+    if ('categories' in PARAMS):
         showCategory(PARAMS['categories'][0], PARAMS['title'][0])
-    elif PARAMS.has_key('movie'):
+    elif ('movie' in PARAMS):
         showMovie(PARAMS['cs'][0], PARAMS['rid'][0], PARAMS['epg_id'][0])
-    elif PARAMS.has_key('online'):
+    elif ('online' in PARAMS):
         showOnline(PARAMS['online'][0], PARAMS['url'][0])
-    elif PARAMS.has_key('screenshot'):
+    elif ('screenshot' in PARAMS):
         showScreenshot(PARAMS['screenshot'][0])
-    elif PARAMS.has_key('preview'):
+    elif ('preview' in PARAMS):
         showPreview(PARAMS['preview'][0],PARAMS['title'][0])
-    elif PARAMS.has_key('actual'):
+    elif ('actual' in PARAMS):
         SHOW_CREDIT = False
         showSelector(PARAMS['actual'][0])
-    elif PARAMS.has_key('search'):
+    elif ('search' in PARAMS):
         if (PARAMS['search'][0] == 'select'):
             searchOverview()
         elif (PARAMS['search'][0] == 'new'):
@@ -1171,28 +1187,28 @@ try:
             searchGroup(PARAMS['search'][0], PARAMS['page'][0])
         else:
             searchPage(PARAMS['search'][0], PARAMS['page'][0])
-    elif PARAMS.has_key('station'):
+    elif ('station' in PARAMS):
         if (PARAMS['station'][0] == 'now'):
             searchStation()
-    elif PARAMS.has_key('credit'):
+    elif ('credit' in PARAMS):
         showCredit()
-    elif PARAMS.has_key('genres'):
+    elif ('genres' in PARAMS):
         genresSelector()
-    elif PARAMS.has_key('records'):
+    elif ('records' in PARAMS):
         if (PARAMS['records'][0] == 'all'):
             showRecords('1')
         else:
             showRecords(PARAMS['records'][0])
-    elif PARAMS.has_key('decode'):
+    elif ('decode' in PARAMS):
         showDecode()
-    elif PARAMS.has_key('toplist'):
+    elif ('toplist' in PARAMS):
         if (PARAMS['toplist'][0] == 'all'):
             toplistSelector()
         else:
             showToplist(PARAMS['toplist'][0], PARAMS['page'][0])
-    elif PARAMS.has_key('main'):
+    elif ('main' in PARAMS):
         mainSelector()
-    elif PARAMS.has_key('epg'):
+    elif ('epg' in PARAMS):
 
         epg = EPG('1', 'True')
         epg.loadChannels(_listMode_ == 'favourites')
@@ -1204,7 +1220,7 @@ try:
             xbmc.sleep(10)
         xbmc.log('- close window -')
         del epg
-    elif PARAMS.has_key('live'):
+    elif ('live' in PARAMS):
         userState = getUserState()
 
         check = checkFile(_filePath, userState)
@@ -1226,11 +1242,11 @@ try:
             saveFile(_filePath, userState)
 
         showChannels(userState, _chanList)
-    elif PARAMS.has_key('tv'):
+    elif ('tv' in PARAMS):
         play(PARAMS['tv'][0])
 
     else:
         mainSelector()
 
-except Exception:
-    xbmc.log('otrstream Exception: ' + str(e))
+#except Exception:
+#    xbmc.log('otrstream Exception: ' + str(e))

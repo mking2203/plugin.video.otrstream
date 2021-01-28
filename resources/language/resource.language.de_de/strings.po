@@ -1,0 +1,253 @@
+# Kodi Media Center language file
+# Addon Name: Deluxe Music
+# Addon id: plugin.video.deluxemusic
+# Addon Provider: Mark König
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@kodi.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "General"
+msgstr "Allgemein"
+
+msgctxt "#30010"
+msgid "E-Mail"
+msgstr "E-Mail"
+
+msgctxt "#30011"
+msgid "Password"
+msgstr "Passwort"
+
+msgctxt "#30012"
+msgid "Debug"
+msgstr "Debug"
+
+msgctxt "#30013"
+msgid "Warning on paid streams"
+msgstr "Warnung wenn der Film kostenpflichtig ist"
+
+msgctxt "#30014"
+msgid "Warning: stream is not free"
+msgstr "Warnung: Stream ist evtl. kostenpflichtig"
+
+msgctxt "#30015"
+msgid "Continue ?"
+msgstr "Weiter ?"
+
+msgctxt "#30016"
+msgid "Use own views"
+msgstr "Benutze eigene Ansichten"
+
+msgctxt "#30017"
+msgid "Live TV all channels"
+msgstr "Live TV alle Sender"
+
+msgctxt "#30020"
+msgid "next page"
+msgstr "Nächste Seite"
+
+msgctxt "#30021"
+msgid "prev.page"
+msgstr "Vorh. Seite"
+
+msgctxt "#30022"
+msgid "Level up"
+msgstr "Verzeichnis nach oben"
+
+msgctxt "#30023"
+msgid "Plugin root"
+msgstr "Plugin Start"
+
+msgctxt "#30024"
+msgid "Home"
+msgstr "Home"
+
+msgctxt "#30025"
+msgid "Previous show"
+msgstr "Zur vorherigen Sendung"
+
+msgctxt "#30026"
+msgid "Next show"
+msgstr "Zur nachfolgenden Sendung"
+
+msgctxt "#30030"
+msgid "Highlights"
+msgstr "Highlights"
+
+msgctxt "#30031"
+msgid "Search"
+msgstr "Suchen"
+
+msgctxt "#30032"
+msgid "Genres"
+msgstr "Genres"
+
+msgctxt "#30033"
+msgid "User account"
+msgstr "Benutzer Konto"
+
+msgctxt "#30034"
+msgid "Records"
+msgstr "Meine Aufnahmen"
+
+msgctxt "#30035"
+msgid "Top lists"
+msgstr "Toplisten"
+
+msgctxt "#30036"
+msgid "Station"
+msgstr "Station"
+
+msgctxt "#30037"
+msgid "Search on one station"
+msgstr "Suche auf einem Sender"
+
+msgctxt "#30038"
+msgid "Date"
+msgstr "Datum"
+
+msgctxt "#30039"
+msgid "Decodings"
+msgstr "Dekodierungen"
+
+msgctxt "#30040"
+msgid "Hello"
+msgstr "Hallo"
+
+msgctxt "#30041"
+msgid "State :"
+msgstr "Status :"
+
+msgctxt "#30042"
+msgid "Credit :"
+msgstr "Guthaben :"
+
+msgctxt "#30045"
+msgid "Online"
+msgstr "Online"
+
+msgctxt "#30050"
+msgid "of yesterday"
+msgstr "von gestern"
+
+msgctxt "#30051"
+msgid "last weekend"
+msgstr "vom Wochenende"
+
+msgctxt "#30052"
+msgid "past 7 days"
+msgstr "der letzten 7 Tage"
+
+msgctxt "#30053"
+msgid "past 30 days"
+msgstr "der letzten 30 Tage"
+
+msgctxt "#30054"
+msgid "of the year"
+msgstr "des Jahres"
+
+msgctxt "#30055"
+msgid "Blockbuster collection"
+msgstr "Blockbuster-Sammlung"
+
+msgctxt "#30060"
+msgid "Movies"
+msgstr "Filme"
+
+msgctxt "#30061"
+msgid "Series"
+msgstr "Serien"
+
+msgctxt "#30062"
+msgid "News"
+msgstr "News"
+
+msgctxt "#30063"
+msgid "Comedy"
+msgstr "Comedy"
+
+msgctxt "#30064"
+msgid "Dokus"
+msgstr "Dokus"
+
+msgctxt "#30065"
+msgid "Magazines"
+msgstr "Magazine"
+
+msgctxt "#30066"
+msgid "Education"
+msgstr "Wissen"
+
+msgctxt "#30067"
+msgid "Show"
+msgstr "Show"
+
+msgctxt "#30068"
+msgid "Sport"
+msgstr "Sport"
+
+msgctxt "#30069"
+msgid "Music"
+msgstr "Musik"
+
+msgctxt "#30070"
+msgid "Kids"
+msgstr "Kinder"
+
+msgctxt "#30071"
+msgid "Erotic"
+msgstr "Erotik"
+
+msgctxt "#30080"
+msgid "Custom search 1"
+msgstr "Benutzer Suche 1"
+
+msgctxt "#30081"
+msgid "Custom search 2"
+msgstr "Benutzer Suche 2"
+
+msgctxt "#30082"
+msgid "Custom search 3"
+msgstr "Benutzer Suche 3"
+
+msgctxt "#30085"
+msgid "only German stations"
+msgstr "nur deutsche Sender"
+
+msgctxt "#30086"
+msgid "New search"
+msgstr "Neue Suche"
+
+msgctxt "#30090"
+msgid "My Top list 1"
+msgstr "Eigene Top Liste 1"
+
+msgctxt "#30091"
+msgid "My Top list 2"
+msgstr "Eigene Top Liste 2"
+
+msgctxt "#30092"
+msgid "My Top list 3"
+msgstr "Eigene Top Liste 3"
+
+msgctxt "#30093"
+msgid "My Top list 4"
+msgstr "Eigene Top Liste 4"
+
+msgctxt "#30100"
+msgid "Login to OTR"
+msgstr "Anmeldung an OTR"
+
+msgctxt "#30101"
+msgid "Login to OTR failed !"
+msgstr "Anmeldung fehlgeschlagen !"

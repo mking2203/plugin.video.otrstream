@@ -8,10 +8,10 @@ Created on 27.04.2017
 
 import sys
 import mechanize, re
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import time, os, datetime
 import urllib
-import cookielib
+import http.cookiejar as cookielib
 import searchStrings
 import xbmc
 import requests
@@ -63,7 +63,7 @@ def login(user, pw, cookiePath):
               u'password': pw,
               u'rememberlogin' : '1',
               u'btn_login' :'+Anmelden+'}
-    data = urllib.urlencode(params)
+    data = urllib.parse.urlencode(params)
     response = br.open(loginURL,data)
     result = response.read().decode('UTF-8')
 
@@ -145,10 +145,10 @@ def getMoreData(user, pw, cookiePath, page):
     br.set_handle_robots(False)
 
     params = {u'p': page}
-    data = urllib.urlencode(params)
+    data = urllib.parse.urlencode(params)
 
     response = br.open("https://www.onlinetvrecorder.com/v2/ajax/home_next_highlights.php",  data)
-    result = response.read()
+    result = response.read().decode('utf8')
 
     result = result.replace('\'','"')
 
@@ -164,10 +164,10 @@ def getDecoding(url, params, cookiePath):
     br.set_cookiejar(cj)
     br.set_handle_robots(False)
 
-    data = urllib.urlencode(params)
+    data = urllib.parse.urlencode(params)
 
     response = br.open(url,  data)
-    result = response.read()
+    result = response.read().decode('utf8')
 
     result = result.replace('\'','"')
     return result
@@ -183,7 +183,7 @@ def getHTML(user, pw, cookiePath, link):
     br.set_handle_robots(False)
 
     response = br.open(link, timeout=_timeout)
-    result = response.read()
+    result = response.read().decode('utf8')
 
     return result
 
@@ -203,7 +203,7 @@ def getPostHTML(user, pw, cookiePath, link):
     try:
         request = mechanize.Request(link, timeout=_timeout)
         response = mechanize.urlopen(request)
-        result = response.read()
+        result = response.read().decode('utf8')
     except:
         pass
 
@@ -231,7 +231,7 @@ def getOnlineMovie2(cookiePath, link, rid , cs ):
 
 def scanData(html):
 
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, features="html5lib")
     itemlist = []
 
     # search for highlights
@@ -321,7 +321,7 @@ def scanList(data):
 
     itemlist = []
 
-    soup = BeautifulSoup(data.decode('utf-8', 'ignore'))
+    soup = BeautifulSoup(data, features="html5lib")
     content = soup.findAll ('tr', id=lambda x: x and x.startswith('serchrow'))
 
     for c in content:

@@ -1,0 +1,253 @@
+# Kodi Media Center language file
+# Addon Name: Deluxe Music
+# Addon id: plugin.video.deluxemusic
+# Addon Provider: Mark König
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@kodi.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "General"
+msgstr ""
+
+msgctxt "#30010"
+msgid "E-Mail"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Debug"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Warning on paid streams"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Warning: stream is not free"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Continue ?"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Use own views"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Live TV all channels"
+msgstr ""
+
+msgctxt "#30020"
+msgid "next page"
+msgstr ""
+
+msgctxt "#30021"
+msgid "prev.page"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Level up"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Plugin root"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Home"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Previous show"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Next show"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Highlights"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Genres"
+msgstr ""
+
+msgctxt "#30033"
+msgid "User account"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Records"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Top lists"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Station"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Search on one station"
+msgstr ""
+
+msgctxt "#30038"
+msgid "Date"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Decodings"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Hello"
+msgstr ""
+
+msgctxt "#30041"
+msgid "State :"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Credit :"
+msgstr ""
+
+msgctxt "#30045"
+msgid "Online"
+msgstr ""
+
+msgctxt "#30050"
+msgid "of yesterday"
+msgstr ""
+
+msgctxt "#30051"
+msgid "last weekend"
+msgstr ""
+
+msgctxt "#30052"
+msgid "past 7 days"
+msgstr ""
+
+msgctxt "#30053"
+msgid "past 30 days"
+msgstr ""
+
+msgctxt "#30054"
+msgid "of the year"
+msgstr ""
+
+msgctxt "#30055"
+msgid "Blockbuster collection"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Series"
+msgstr ""
+
+msgctxt "#30062"
+msgid "News"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Comedy"
+msgstr ""
+
+msgctxt "#30064"
+msgid "Dokus"
+msgstr ""
+
+msgctxt "#30065"
+msgid "Magazines"
+msgstr ""
+
+msgctxt "#30066"
+msgid "Education"
+msgstr ""
+
+msgctxt "#30067"
+msgid "Show"
+msgstr ""
+
+msgctxt "#30068"
+msgid "Sport"
+msgstr ""
+
+msgctxt "#30069"
+msgid "Music"
+msgstr ""
+
+msgctxt "#30070"
+msgid "Kids"
+msgstr ""
+
+msgctxt "#30071"
+msgid "Erotic"
+msgstr ""
+
+msgctxt "#30080"
+msgid "Custom search 1"
+msgstr ""
+
+msgctxt "#30081"
+msgid "Custom search 2"
+msgstr ""
+
+msgctxt "#30082"
+msgid "Custom search 3"
+msgstr ""
+
+msgctxt "#30085"
+msgid "only German stations"
+msgstr ""
+
+msgctxt "#30086"
+msgid "New search"
+msgstr ""
+
+msgctxt "#30090"
+msgid "My Top list 1"
+msgstr ""
+
+msgctxt "#30091"
+msgid "My Top list 2"
+msgstr ""
+
+msgctxt "#30092"
+msgid "My Top list 3"
+msgstr ""
+
+msgctxt "#30093"
+msgid "My Top list 4"
+msgstr ""
+
+msgctxt "#30100"
+msgid "Login to OTR"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Login to OTR failed !"
+msgstr ""
