@@ -816,13 +816,13 @@ def showOnline(mode, url):
             # get parameters
             regex = 'getSeriesWatchlistPlayer\(\'(.*?)\',\'(.*?)\''
             m = re.search(regex, page)
-            
+
             if m is not None:
-                            
+
                 # query values
                 link = 'https://www.onlinetvrecorder.com/v2/ajax/get_series_watchlist_player.php'
                 page = website.getOnlineMovie( __cookiePath, link, m.group(1), m.group(2))
-                
+
                 # now find source
                 regex = '<source.src=\"(.*?)\"'
                 m = re.search(regex, page)
@@ -833,7 +833,7 @@ def showOnline(mode, url):
                     xbmc.Player().play(m.group(1), listitem)
                 else:
                     xbmcgui.Dialog().notification(__addonname, 'ERROR - no source?' , time=3000) #__addon.getLocalizedString(30101)
-                    
+
             else:
                 xbmcgui.Dialog().notification(__addonname, 'ERROR - no ID?' , time=3000) #__addon.getLocalizedString(30101)
 
@@ -958,7 +958,7 @@ def play(tv):
 
                     playitem = xbmcgui.ListItem(path=url)
                     playitem.setArt({'thumb': thumb})
-                    
+
                     txt =  urllib.parse.unquote(title) + ' ' + start + '-' + stop + '\n' + urllib.parse.unquote(desc)
                     playitem.setInfo('video', { 'plot': txt })
                     playitem.setProperty('inputstream', is_helper.inputstream_addon)
@@ -1227,18 +1227,18 @@ if __name__ == '__main__':
         if(not check):
             if(userState == 'free'):
                 # keine Daten ?
-                xbmcgui.Dialog().notification(ADDON_NAME, 'Sie benutzen SF im FREE Modus.\nBitte melden Sie sich an.', time=5000)
+                xbmcgui.Dialog().notification(__addonname, 'Sie benutzen SF im FREE Modus.\nBitte melden Sie sich an.', time=5000)
             elif(userState == 'error'):
                 # falsche Daten ?
-                xbmcgui.Dialog().notification(ADDON_NAME, 'Der LOGIN war nicht erfolgreich.\nBitte überprüfen Sie die Daten.', time=5000)
+                xbmcgui.Dialog().notification(__addonname, 'Der LOGIN war nicht erfolgreich.\nBitte überprüfen Sie die Daten.', time=5000)
             elif(userState == 'member'):
                 # wir sind angemeldet
-                xbmcgui.Dialog().notification(ADDON_NAME, 'Sie haben keinen PLUS Status\nAktivieren Sie bitte PLUS.', time=5000)
+                xbmcgui.Dialog().notification(__addonname, 'Sie haben keinen PLUS Status\nAktivieren Sie bitte PLUS.', time=5000)
             elif(userState == 'plus'):
                 # wir sind plus mitglied
                 pass
             else:
-                xbmcgui.Dialog().notification(ADDON_NAME, 'StateState= ' + userState, time=5000)
+                xbmcgui.Dialog().notification(__addonname, 'StateState= ' + userState, time=5000)
             saveFile(_filePath, userState)
 
         showChannels(userState, _chanList)
